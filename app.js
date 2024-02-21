@@ -52,6 +52,11 @@ function bearingAndDistance(from, to) {
     };
 }
 
+function getFreqRange(freq, chanbw) {
+    freq = parseInt(freq - chanbw / 2);
+    return `${freq}-${freq + parseInt(chanbw)} MHz`;
+}
+
 function canonicalHostname(hostname) {
     return hostname.replace(/^\./, '').replace(/\.local\.mesh$/i,'').toUpperCase();
 }
@@ -183,7 +188,7 @@ ${!isNaN(rf.elevation) ? "<tr><td>Elevation</td><td>" + rf.elevation + "&deg;</t
 ${rf.status === 'on' ?
     "<tr><td>SSID</td><td>" + rf.ssid + "</td></tr>" +
     "<tr><td>Channel</td><td>" + rf.channel + "</td></tr>" +
-    "<tr><td>Frequency</td><td>" + rf.freq + "</td></tr>" +
+    "<tr><td>Frequency</td><td>" + getFreqRange(rf.freq, rf.chanbw) + "</td></tr>" +
     "<tr><td>Bandwidth</td><td>" + rf.chanbw + " MHz</td></tr>" +
     "<tr><td>MAC</td><td>" + d.interfaces[0].mac + "</td></tr>" : ""
 }
