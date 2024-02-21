@@ -71,6 +71,37 @@ function openPopup(chostname) {
     markers[chostname].togglePopup();
 }
 
+function radioColor(d) {
+    if (d.node_details.mesh_supernode) {
+        return "green";
+    }
+    const rf = d.meshrf;
+    const chan = parseInt(rf.channel);
+    if (chan >= 3380 && chan <= 3495) {
+        return "blue";
+    }
+    switch ((rf.freq || "X")[0]) {
+        case "2":
+            return "purple";
+        case "3":
+            return "blue";
+        case "5":
+            return "orange";
+        case "9":
+            return "magenta";
+        default:
+            return "gray";
+    }
+}
+
+function radioAzimuth(d) {
+    const a = d.meshrf.azimuth;
+    if (isNaN(a)) {
+        return 0;
+    }
+    return 180 + parseInt(a);
+}
+
 function loadMap() {
     map = new mapboxgl.Map({
         container: "map",
@@ -99,7 +130,7 @@ function loadMap() {
         const data = node.data;
         const loc = getVirtualLatLon(data);
         if (loc.lat && loc.lon) {
-            markers[cname] = new mapboxgl.Marker({ color: radioColor(data) }).setLngLat([ loc.lon, loc.lat ]).setPopup(makePopup(data)).addTo(map);
+            markers[cname] = new mapboxgl.Marker({ color: radioColor(data), scale: 0.75, rotationAlignment: "map", rotation: radioAzimuth(data) }).setLngLat([ loc.lon, loc.lat ]).setPopup(makePopup(data)).addTo(map);
         }
     }
 }
@@ -169,7 +200,8 @@ function makePopup(d) {
             default:
                 return `<div>${chostname}</div>`;
         }
-    }).join("") || "<div>None</div>";
+    });
+    neighbors.sort();
     const todayStart = new Date().setHours(0, 0, 0, 0) / 1000;
     const yesterdayStart = todayStart - 24 * 60 * 60;
     const weekStart = todayStart - 7 * 24 * 60 * 60;
@@ -197,7 +229,7 @@ ${rf.status === 'on' ?
 }
 <tr><td>Hardware</td><td>${i.hardware || ""}</td></tr>
 <tr><td>Firmware</td><td>${i.firmware_version || ""}</td></tr>
-<tr><td>Neighbors</td><td class="neighbors">${neighbors}</td></tr>
+<tr><td>Neighbors</td><td class="neighbors">${neighbors.join("") || "<div>None</div>"}</td></tr>
 </table>`;
     return new mapboxgl.Popup({
         className: "description",
@@ -205,31 +237,8 @@ ${rf.status === 'on' ?
         maxWidth: "500px",
         focusAfterOpen: false,
         anchor: "bottom-left",
-        offset: [ 0, -20 ]
+        offset: [ 0, -16 ]
     }).setHTML(lines);
-}
-
-function radioColor(d) {
-    if (d.node_details.mesh_supernode) {
-        return "green";
-    }
-    const rf = d.meshrf;
-    const chan = parseInt(rf.channel);
-    if (chan >= 3380 && chan <= 3495) {
-        return "blue";
-    }
-    switch ((rf.freq || "X")[0]) {
-        case "2":
-            return "purple";
-        case "3":
-            return "blue";
-        case "5":
-            return "orange";
-        case "9":
-            return "magenta";
-        default:
-            return "gray";
-    }
 }
 
 function start() {
