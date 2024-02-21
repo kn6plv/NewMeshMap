@@ -1,0 +1,143 @@
+body
+{
+    font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.description
+{
+    font-size: 12px;
+    background-color: white;
+    border-radius: 12px;
+    border-bottom-left-radius: 0;
+    overflow: hidden;
+    box-shadow: 0 3px 14px rgba(0,0,0,.4);
+}
+#map
+{
+    width: 100%;
+    height: 100%;
+}
+#ctrl
+{
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 10px;
+    padding: 4px 12px;
+    background-color: hsla(0,0%,100%,.7);
+    font-size: 12px;
+    border: 1px solid grey;
+    border-radius: 16px;
+    z-index: 2;
+}
+#ctrl select {
+    outline: none;
+    border: 0px;
+    background-color: transparent;
+}
+#key
+{
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-height: 100px;
+    margin: 10px;
+    padding: 12px 8px 16px 8px;
+    background-color: hsla(0,0%,100%,.7);
+    font-size: 15px;
+    border: 1px solid grey;
+    border-radius: 16px;
+    z-index: 2;
+}
+#key .title
+{
+    font-size: 18px;
+    font-weight: 700;
+    padding-left: 12px;
+}
+#key td
+{
+    padding-top: 4px;
+}
+#key td:first-child
+{
+    padding-left: 10px;
+    min-width: 100px
+}
+#key td:last-child
+{
+    padding-right: 10px;
+    text-align: right;
+}
+#key tr:last-child td:first-child
+{
+    padding-left: 32px;
+}
+#key .footer
+{
+    font-size: 8px;
+    text-align: right;
+    padding: 4px 14px 0 0;
+}
+
+.description .mapboxgl-popup-tip
+{
+    display: none;
+}
+.description .mapboxgl-popup-content
+{
+    padding: 13px 19px;
+}
+.description .name
+{
+    font-size: 16px;
+    color: rgb(0, 120, 168);
+    padding: 0 0 6px 2px;
+}
+.description td
+{
+    font-size: 12px;
+    color: rgb(51, 51, 51);
+    vertical-align: top;
+}
+.description td.neighbors div
+{
+    padding-bottom: 2px;
+}
+.description td.neighbors .bearing
+{
+    position: relative;
+    top: -2px;
+    font-size: 9px;
+}
+.description td a,
+.description .name a
+{
+    color: #0078a8;
+    text-decoration: none;
+}
+.description td a:hover,
+.description a:hover
+{
+    text-decoration: underline;
+}
+.description td.neighbors span
+{
+    color: grey;
+    font-size: 9px;
+}
+.description td:first-child
+{
+    width: 80px;
+}
+.mark
+{
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    background-color: grey;
+    vertical-align: bottom;
+}
