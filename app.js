@@ -141,10 +141,10 @@ function loadMap() {
 
 function selectMap(v) {
     switch (v) {
-        case "Standard":
+        case "standard":
             map.setStyle("mapbox://styles/mapbox/standard");
             break;
-        case "Satellite":
+        case "satellite":
             map.setStyle("mapbox://styles/mapbox/satellite-streets-v12");
             break;
         default:
