@@ -32,11 +32,22 @@ body
     border-radius: 16px;
     z-index: 2;
 }
-#ctrl select {
+#ctrl select
+{
     outline: none;
     border: 0px;
     background-color: transparent;
     font: inherit;
+}
+#ctrl a
+{
+    color: inherit;
+    text-decoration: none;
+}
+#ctrl a:hover
+{
+    color: #0078a8;
+    text-decoration: underline;
 }
 #key
 {
@@ -78,7 +89,7 @@ body
 }
 #key .footer
 {
-    font-size: 8px;
+    font-size: 9px;
     text-align: right;
     padding: 4px 14px 0 0;
 }

@@ -344,9 +344,6 @@ ${nrf ? "<tr><td><div class='mark'></div> No RF</td><td>" + nrf + "</td></tr>" :
 <tr><td>Total</td><td>${out.nodeInfo.length}</td></tr>
 </table>
 <div class="footer">
-<div>Download CSV data <a href="/data/out.csv" target="_blank">here</a></div>
-<div>And KML data <a href="/data/out.kml" target="_blank">here</a></div>
-<div>Mesh map phone compass <a href="/compass">here</a></div>
 <div>Last updated ${new Date(out.date).toLocaleString()}</div></div>
 </div>
     `;
