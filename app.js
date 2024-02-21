@@ -161,7 +161,7 @@ function makePopup(d) {
             default:
                 return `<div>${chostname}</div>`;
         }
-    }).join("");
+    }).join("") || "<div>None</div>";
     const todayStart = new Date().setHours(0, 0, 0, 0) / 1000;
     const yesterdayStart = todayStart - 24 * 60 * 60;
     const weekStart = todayStart - 7 * 24 * 60 * 60;
@@ -185,7 +185,6 @@ ${rf.status === 'on' ?
     "<tr><td>Channel</td><td>" + rf.channel + "</td></tr>" +
     "<tr><td>Frequency</td><td>" + rf.freq + "</td></tr>" +
     "<tr><td>Bandwidth</td><td>" + rf.chanbw + " MHz</td></tr>" +
-    "<tr><td>LQM</td><td>" + (d.lqm && d.lqm.enabled ? "Enabled" : d.lqm ? "Disabled" : "Unavailable") + "</td></tr>" +
     "<tr><td>MAC</td><td>" + d.interfaces[0].mac + "</td></tr>" : ""
 }
 <tr><td>Hardware</td><td>${i.hardware || ""}</td></tr>
