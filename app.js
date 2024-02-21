@@ -1,6 +1,6 @@
 
 let map = null;
-let mapStyle = "mapbox://styles/mapbox/standard";
+const defaultMapStyle = "mapbox://styles/mapbox/standard";
 const nodes = {};
 const markers = {};
 const rf = [];
@@ -67,17 +67,14 @@ function openPopup(chostname) {
 }
 
 function loadMap() {
-    if (map) {
-        map.remove();
-    }
     map = new mapboxgl.Map({
         container: "map",
-        style: mapStyle,
+        style: defaultMapStyle,
         center: [ config.lon, config.lat ],
         zoom: config.zoom,
         hash: true
     });
-    map.on("load", () => {
+    map.on("style.load", () => {
         map.addSource("rf", { type: "geojson", data: { type: 'Feature', properties: {}, geometry: { type: 'MultiLineString', coordinates: rf } } });
         map.addLayer({ id: "rf", type: 'line', source: "rf", paint: { "line-color": "limegreen", "line-width": 2 } });
         map.addSource("tun", { type: "geojson", data: { type: 'Feature', properties: {}, geometry: { type: 'MultiLineString', coordinates: tun } } });
@@ -88,26 +85,24 @@ function loadMap() {
         map.addLayer({ id: "supertun", type: 'line', source: "supertun", paint: { "line-color": "blue", "line-width": 2, "line-dasharray": [ 3,  2 ] } });
         map.addSource("longdtd", { type: "geojson", data: { type: 'Feature', properties: {}, geometry: { type: 'MultiLineString', coordinates: longdtd } } });
         map.addLayer({ id: "longdtd", type: 'line', source: "longdtd", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 1,  1 ] } });
-        for (cname in nodes) {
-            const node = nodes[cname];
-            const data = node.data;
-            const loc = getVirtualLatLon(data);
-            if (loc.lat && loc.lon) {
-                markers[cname] = new mapboxgl.Marker({ color: radioColor(data) }).setLngLat([ loc.lon, loc.lat ]).setPopup(makePopup(data)).addTo(map);
-            }
-        }
     });
+    for (cname in nodes) {
+        const node = nodes[cname];
+        const data = node.data;
+        const loc = getVirtualLatLon(data);
+        if (loc.lat && loc.lon) {
+            markers[cname] = new mapboxgl.Marker({ color: radioColor(data) }).setLngLat([ loc.lon, loc.lat ]).setPopup(makePopup(data)).addTo(map);
+        }
+    }
 }
 
 function selectMap(v) {
     switch (v) {
         case "Standard":
-            mapStyle = "mapbox://styles/mapbox/standard";
-            loadMap();
+            map.setStyle("mapbox://styles/mapbox/standard");
             break;
         case "Satellite":
-            mapStyle = "mapbox://styles/mapbox/satellite-streets-v12";
-            loadMap();
+            map.setStyle("mapbox://styles/mapbox/satellite-streets-v12");
             break;
         default:
             break;
