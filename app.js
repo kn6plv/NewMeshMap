@@ -8,6 +8,21 @@ const tun = [];
 const xlink = [];
 const supertun = [];
 const longdtd = [];
+const radioColors = {
+    "2": "purple",
+    "3": "blue",
+    "5": "orange",
+    "9": "magenta",
+    "s": "green",
+    "n": "gray"
+};
+let rf9 = 0;
+let rf2 = 0;
+let rf3 = 0;
+let rf5 = 0;
+let sn = 0;
+let nrf = 0;
+let filterKeyColor = null;
 
 function toRadians(d) {
     return d * Math.PI / 180;
@@ -85,18 +100,7 @@ function radioColor(d) {
     if (chan >= 3380 && chan <= 3495) {
         return "blue";
     }
-    switch ((rf.freq || "X")[0]) {
-        case "2":
-            return "purple";
-        case "3":
-            return "blue";
-        case "5":
-            return "orange";
-        case "9":
-            return "magenta";
-        default:
-            return "gray";
-    }
+    return radioColors[(rf.freq || "X")[0]] || "gray";
 }
 
 function radioAzimuth(d) {
@@ -105,6 +109,34 @@ function radioAzimuth(d) {
         return 0;
     }
     return 180 + parseInt(a);
+}
+
+function createMarkers() {
+    for (cname in nodes) {
+        const data = nodes[cname].data;
+        const loc = getVirtualLatLon(data);
+        if (loc.lat && loc.lon) {
+            markers[cname] = new mapboxgl.Marker({ color: radioColor(data), scale: 0.75, pitchAlignment: "viewport", rotationAlignment: "map", rotation: radioAzimuth(data) }).setLngLat([ loc.lon, loc.lat ]).setPopup(makePopup(data));
+        }
+    }
+}
+
+function updateMarkers() {
+    for (cname in markers) {
+        const m = markers[cname];
+        m.remove();
+        if (!filterKeyColor || filterKeyColor == m._color) {
+            m.addTo(map);
+        }
+    }
+}
+
+function updateSources() {
+    map.getSource("rf").setData({ type: 'Feature', properties: {}, geometry: { type: 'MultiLineString', coordinates: rf } });
+    map.getSource("tun").setData({ type: 'Feature', properties: {}, geometry: { type: 'MultiLineString', coordinates: tun } });
+    map.getSource("xlink").setData({ type: 'Feature', properties: {}, geometry: { type: 'MultiLineString', coordinates: xlink } });
+    map.getSource("supertun").setData({ type: 'Feature', properties: {}, geometry: { type: 'MultiLineString', coordinates: supertun } });
+    map.getSource("longdtd").setData({ type: 'Feature', properties: {}, geometry: { type: 'MultiLineString', coordinates: longdtd } });
 }
 
 function loadMap() {
@@ -130,13 +162,8 @@ function loadMap() {
         map.addSource("longdtd", { type: "geojson", data: { type: 'Feature', properties: {}, geometry: { type: 'MultiLineString', coordinates: longdtd } } });
         map.addLayer({ id: "longdtd", type: 'line', source: "longdtd", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 1,  1 ] } });
     });
-    for (cname in nodes) {
-        const data = nodes[cname].data;
-        const loc = getVirtualLatLon(data);
-        if (loc.lat && loc.lon) {
-            markers[cname] = new mapboxgl.Marker({ color: radioColor(data), scale: 0.75, pitchAlignment: "viewport", rotationAlignment: "map", rotation: radioAzimuth(data) }).setLngLat([ loc.lon, loc.lat ]).setPopup(makePopup(data)).addTo(map);
-        }
-    }
+    createMarkers();
+    updateMarkers();
 }
 
 function selectMap(v) {
@@ -147,8 +174,142 @@ function selectMap(v) {
         case "satellite":
             map.setStyle("mapbox://styles/mapbox/satellite-streets-v12");
             break;
+        case "outdoor":
+            map.setStyle("mapbox://styles/mapbox/outdoors-v12");
+            break;
         default:
             break;
+    }
+}
+
+function filterKey(color) {
+    color = radioColors[color];
+    if (color === filterKeyColor) {
+        filterKeyColor = null;
+    }
+    else {
+        filterKeyColor = color;
+    }
+    updateLinks();
+    updateKey();
+    updateMarkers();
+    updateSources();
+}
+
+function updateKey() {
+    function sel(c) {
+        return !filterKeyColor || filterKeyColor == radioColors[c];
+    }
+    const key = document.getElementById("key");
+    key.innerHTML = `
+<div class="title">${config.title}</div>
+<table>
+<tr><td>Band</td><td>Nodes</td></tr>
+${rf9 ? "<tr class='" + sel("9") + "'><td><div class='mark' style='background-color: magenta'></div> <a href='#' onclick='filterKey(\"9\")'>900 MHz</a></td><td>" + rf9 + "</td></tr>" : ""}
+${rf2 ? "<tr class='" + sel("2") + "'><td><div class='mark' style='background-color: purple'></div> <a href='#' onclick='filterKey(\"2\")'>2.4 GHz</a></td><td>" + rf2 + "</td></tr>" : ""}
+${rf3 ? "<tr class='" + sel("3") + "'><td><div class='mark' style='background-color: blue'></div> <a href='#' onclick='filterKey(\"3\")'>3.4 GHz</a></td><td>" + rf3 + "</td></tr>" : ""}
+${rf5 ? "<tr class='" + sel("5") + "'><td><div class='mark' style='background-color: orange'></div> <a href='#' onclick='filterKey(\"5\")'>5 GHz</a></td><td>" + rf5 + "</td></tr>" : ""}
+${sn  ? "<tr class='" + sel("s") + "'><td><div class='mark' style='background-color: green'></div> <a href='#' onclick='filterKey(\"s\")'>Supernode</a></td><td>" + sn + "</td></tr>" : ""}
+${nrf ? "<tr class='" + sel("n") + "'><td><div class='mark'></div> <a href='#' onclick='filterKey(\"n\")'>No RF</a></td><td>" + nrf + "</td></tr>" : ""}
+<tr><td>Total</td><td>${out.nodeInfo.length}</td></tr>
+</table>
+<div class="footer">
+<div>Last updated ${new Date(out.date).toLocaleString()}</div></div>
+</div>
+    `;
+}
+
+function countRadios() {
+    for (cname in nodes) {
+        const node = nodes[cname];
+        const d = node.data;
+        if (d.node_details.mesh_supernode) {
+            sn++;
+        }
+        else {
+            const rf = d.meshrf;
+            const chan = parseInt(rf.channel);
+            if (chan >= 3380 && chan <= 3495) {
+                rf3++;
+            }
+            else switch ((rf.freq || "X")[0]) {
+                case "2":
+                    rf2++;
+                    break;
+                case "3":
+                    rf3++;
+                    break;
+                case "5":
+                    rf5++;
+                    break;
+                case "9":
+                    rf9++;
+                    break;
+                default:
+                    nrf++;
+                    break;
+            }
+        }
+    }
+}
+
+function updateLinks() {
+    rf.length = 0;
+    tun.length = 0;
+    xlink.length = 0;
+    supertun.length = 0;
+    longdtd.length = 0;
+    const done = {};
+    for (cname in nodes) {
+        const node = nodes[cname];
+        const d = node.data;
+        if (filterKeyColor && filterKeyColor !== radioColor(d)) {
+            continue;
+        }
+        const dloc = getVirtualLatLon(d);
+        const link_info = d.link_info;
+        for (ip in link_info) {
+            let link = null;
+            const l = link_info[ip];
+            const chostname = canonicalHostname(l.hostname);
+            const hn = nodes[chostname];
+            if (hn && filterKeyColor && filterKeyColor !== radioColor(hn.data)) {
+                continue;
+            }
+            const hloc = getVirtualLatLon(hn && hn.data);
+            if (dloc.lat && dloc.lon && hloc.lat && hloc.lon) {
+                const id = `${cname}/${chostname}`;
+                if (!done[id] && !done[`${chostname}/${cname}`]) {
+                    done[id] = true;
+                    link = [[ dloc.lon, dloc.lat ], [ hloc.lon, hloc.lat ]];
+                }
+            }
+            if (link) {
+                switch (l.linkType || "X") {
+                    case "RF":
+                        rf.push(link);
+                        break;
+                    case "TUN":
+                    case "WIREGUARD":
+                        tun.push(link);
+                        break;
+                    case "XLINK":
+                        xlink.push(link);
+                        break;
+                    case "SUPER":
+                        supertun.push(link);
+                        break;
+                    case "DTD":
+                        const bd = bearingAndDistance(link[0], link[1]);
+                        if (bd.distance > 0.03) {
+                            longdtd.push(link);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
     }
 }
 
@@ -250,103 +411,9 @@ function start() {
     out.nodeInfo.forEach(node => {
         nodes[canonicalHostname(node.data.node)] = node;
     });
-    const done = {};
-    let rf9 = 0;
-    let rf2 = 0;
-    let rf3 = 0;
-    let rf5 = 0;
-    let sn = 0;
-    let nrf = 0;
-    for (cname in nodes) {
-        const node = nodes[cname];
-        const d = node.data;
-        const link_info = d.link_info;
-        for (ip in link_info) {
-            let link = null;
-            const l = link_info[ip];
-            const chostname = canonicalHostname(l.hostname);
-            const hn = nodes[chostname];
-            const dloc = getVirtualLatLon(d);
-            const hloc = getVirtualLatLon(hn && hn.data);
-            if (dloc.lat && dloc.lon && hloc.lat && hloc.lon) {
-                const id = `${cname}/${chostname}`;
-                if (!done[id] && !done[`${chostname}/${cname}`]) {
-                    done[id] = true;
-                    link = [[ dloc.lon, dloc.lat ], [ hloc.lon, hloc.lat ]];
-                }
-            }
-            if (link) {
-                switch (l.linkType || "X") {
-                    case "RF":
-                        rf.push(link);
-                        break;
-                    case "TUN":
-                    case "WIREGUARD":
-                        tun.push(link);
-                        break;
-                    case "XLINK":
-                        xlink.push(link);
-                        break;
-                    case "SUPER":
-                        supertun.push(link);
-                        break;
-                    case "DTD":
-                        const bd = bearingAndDistance(link[0], link[1]);
-                        if (bd.distance > 0.03) {
-                            longdtd.push(link);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-        if (d.node_details.mesh_supernode) {
-            sn++;
-        }
-        else {
-            const rf = d.meshrf;
-            const chan = parseInt(rf.channel);
-            if (chan >= 3380 && chan <= 3495) {
-                rf3++;
-            }
-            else switch ((rf.freq || "X")[0]) {
-                case "2":
-                    rf2++;
-                    break;
-                case "3":
-                    rf3++;
-                    break;
-                case "5":
-                    rf5++;
-                    break;
-                case "9":
-                    rf9++;
-                    break;
-                default:
-                    nrf++;
-                    break;
-            }
-        }
-    }
-    
-    const key = document.getElementById("key");
-    key.innerHTML = `
-<div class="title">${config.title}</div>
-<table>
-<tr><td>Band</td><td>Nodes</td></tr>
-${rf9 ? "<tr><td><div class='mark' style='background-color: magenta'></div> 900 MHz</td><td>" + rf9 + "</td></tr>" : ""}
-${rf2 ? "<tr><td><div class='mark' style='background-color: purple'></div> 2.4 GHz</td><td>" + rf2 + "</td></tr>" : ""}
-${rf3 ? "<tr><td><div class='mark' style='background-color: blue'></div> 3.4 GHz</td><td>" + rf3 + "</td></tr>" : ""}
-${rf5 ? "<tr><td><div class='mark' style='background-color: orange'></div> 5 GHz</td><td>" + rf5 + "</td></tr>" : ""}
-${sn ? "<tr><td><div class='mark' style='background-color: green'></div> Supernode</td><td>" + sn + "</td></tr>" : ""}
-${nrf ? "<tr><td><div class='mark'></div> No RF</td><td>" + nrf + "</td></tr>" : ""}
-<tr><td>Total</td><td>${out.nodeInfo.length}</td></tr>
-</table>
-<div class="footer">
-<div>Last updated ${new Date(out.date).toLocaleString()}</div></div>
-</div>
-    `;
+    updateLinks();
+    countRadios();
+    updateKey();
     loadMap();
 }
 

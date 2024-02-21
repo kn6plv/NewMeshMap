@@ -87,6 +87,20 @@ body
 {
     padding-left: 32px;
 }
+#key tr.false
+{
+    color: grey;
+}
+#key a
+{
+    font: inherit;
+    color: inherit;
+    text-decoration: none;
+}
+#key a:hover
+{
+    text-decoration: underline;
+}
 #key .footer
 {
     font-size: 9px;
