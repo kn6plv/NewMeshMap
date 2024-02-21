@@ -232,7 +232,7 @@ function radioColor(d) {
 
 function start() {
     mapboxgl.accessToken = config.token;
-    mesh.nodeInfo.forEach(node => {
+    out.nodeInfo.forEach(node => {
         nodes[canonicalHostname(node.data.node)] = node;
     });
     const done = {};
@@ -324,13 +324,13 @@ ${rf3 ? "<tr><td><div class='mark' style='background-color: blue'></div> 3.4 GHz
 ${rf5 ? "<tr><td><div class='mark' style='background-color: orange'></div> 5 GHz</td><td>" + rf5 + "</td></tr>" : ""}
 ${sn ? "<tr><td><div class='mark' style='background-color: green'></div> Supernode</td><td>" + sn + "</td></tr>" : ""}
 ${nrf ? "<tr><td><div class='mark'></div> No RF</td><td>" + nrf + "</td></tr>" : ""}
-<tr><td>Total</td><td>${mesh.nodeInfo.length}</td></tr>
+<tr><td>Total</td><td>${out.nodeInfo.length}</td></tr>
 </table>
 <div class="footer">
 <div>Download CSV data <a href="data/out.csv" target="_blank">here</a></div>
 <div>And KML data <a href="data/out.kml" target="_blank">here</a></div>
 <div>Mesh map phone compass <a href="compass">here</a></div>
-<div>Last updated ${new Date(mesh.date).toLocaleString()}</div></div>
+<div>Last updated ${new Date(out.date).toLocaleString()}</div></div>
 </div>
     `;
     loadMap();
