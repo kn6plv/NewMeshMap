@@ -87,8 +87,11 @@ function openPopup(chostname) {
             markers[m].togglePopup();
         }
     }
-    map.flyTo({ center: markers[chostname].getLngLat(), speed: 1 });
-    markers[chostname].togglePopup();
+    const marker = markers[chostname];
+    if (marker._map) {
+        map.flyTo({ center: marker.getLngLat(), speed: 1 });
+        marker.togglePopup();
+    }
 }
 
 function radioColor(d) {
