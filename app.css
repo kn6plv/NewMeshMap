@@ -36,6 +36,7 @@ body
     outline: none;
     border: 0px;
     background-color: transparent;
+    font: inherit;
 }
 #key
 {
