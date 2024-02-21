@@ -26,7 +26,12 @@ function getRealLatLon(n) {
 
 function getVirtualLatLon(n) {
     if (n) {
-        return { lat: n.mlat || n.lat, lon: n.mlon || n.lon };
+        if (n.mlat && n.lat && n.mlon && n.lon) {
+            return { lat: parseFloat(n.lat) + (n.mlat - n.lat) / 10, lon: parseFloat(n.lon) + (n.mlon - n.lon) / 10 };
+        }
+        else {
+            return { lat: n.mlat || n.lat, lon: n.mlon || n.lon };
+        }
     }
     return {};
 }
@@ -261,11 +266,13 @@ function start() {
             const l = link_info[ip];
             const chostname = canonicalHostname(l.hostname);
             const hn = nodes[chostname];
-            if (hn && d.lat && d.lon && hn.data.lat && hn.data.lon) {
+            const dloc = getVirtualLatLon(d);
+            const hloc = getVirtualLatLon(hn && hn.data);
+            if (dloc.lat && dloc.lon && hloc.lat && hloc.lon) {
                 const id = `${cname}/${chostname}`;
                 if (!done[id] && !done[`${chostname}/${cname}`]) {
                     done[id] = true;
-                    link = [[ d.lon, d.lat ], [ hn.data.lon, hn.data.lat ]];
+                    link = [[ dloc.lon, dloc.lat ], [ hloc.lon, hloc.lat ]];
                 }
             }
             if (link) {
