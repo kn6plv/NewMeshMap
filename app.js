@@ -79,6 +79,9 @@ function loadMap() {
         zoom: config.zoom,
         hash: true
     });
+    map.addControl(new mapboxgl.NavigationControl({
+        visualizePitch: true
+    }), "bottom-right");
     map.on("style.load", () => {
         map.addSource("rf", { type: "geojson", data: { type: 'Feature', properties: {}, geometry: { type: 'MultiLineString', coordinates: rf } } });
         map.addLayer({ id: "rf", type: 'line', source: "rf", paint: { "line-color": "limegreen", "line-width": 2 } });
