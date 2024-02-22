@@ -26,6 +26,19 @@ const mapStyles = {
             }
         },
         layers: [{ id: "osm", type: "raster", source: "osm" }]
+    },
+    satellite: {
+        version: 8,
+        sources: {
+            osm: {
+                type: "raster",
+                tiles: [ "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}" ],
+                tileSize: 256,
+                attribution: "&copy; Google",
+                maxzoom: 19
+            }
+        },
+        layers: [{ id: "osm", type: "raster", source: "osm" }]
     }
 };
 const nodes = {};
