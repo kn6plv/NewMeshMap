@@ -119,7 +119,7 @@ function createMarkers() {
         const data = nodes[cname].data;
         const loc = getVirtualLatLon(data);
         if (loc.lat && loc.lon) {
-            markers[cname] = new mapboxgl.Marker({ color: radioColor(data), scale: 0.75, pitchAlignment: "viewport", rotationAlignment: "map", rotation: radioAzimuth(data) }).setLngLat([ loc.lon, loc.lat ]).setPopup(makePopup(data));
+            markers[cname] = new mapboxgl.Marker({ className: "marker", color: radioColor(data), scale: 0.75, pitchAlignment: "viewport", rotationAlignment: "map", rotation: radioAzimuth(data) }).setLngLat([ loc.lon, loc.lat ]).setPopup(makePopup(data));
         }
     }
 }
