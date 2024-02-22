@@ -23,6 +23,7 @@ let rf5 = 0;
 let sn = 0;
 let nrf = 0;
 let filterKeyColor = null;
+const measurements = { type: "FeatureCollection", features: [] };
 
 function toRadians(d) {
     return d * Math.PI / 180;
@@ -154,16 +155,19 @@ function loadMap() {
         visualizePitch: true
     }), "bottom-right");
     map.on("style.load", () => {
-        map.addSource("rf", { type: "geojson", data: { type: 'Feature', properties: {}, geometry: { type: 'MultiLineString', coordinates: rf } } });
-        map.addLayer({ id: "rf", type: 'line', source: "rf", paint: { "line-color": "limegreen", "line-width": 2 } });
-        map.addSource("tun", { type: "geojson", data: { type: 'Feature', properties: {}, geometry: { type: 'MultiLineString', coordinates: tun } } });
-        map.addLayer({ id: "tun", type: 'line', source: "tun", paint: { "line-color": "gray", "line-width": 2, "line-dasharray": [ 3,  2 ] } });
-        map.addSource("xlink", { type: "geojson", data: { type: 'Feature', properties: {}, geometry: { type: 'MultiLineString', coordinates: xlink } } });
-        map.addLayer({ id: "xlink", type: 'line', source: "xlink", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 3,  2 ] } });
-        map.addSource("supertun", { type: "geojson", data: { type: 'Feature', properties: {}, geometry: { type: 'MultiLineString', coordinates: supertun } } });
-        map.addLayer({ id: "supertun", type: 'line', source: "supertun", paint: { "line-color": "blue", "line-width": 2, "line-dasharray": [ 3,  2 ] } });
-        map.addSource("longdtd", { type: "geojson", data: { type: 'Feature', properties: {}, geometry: { type: 'MultiLineString', coordinates: longdtd } } });
-        map.addLayer({ id: "longdtd", type: 'line', source: "longdtd", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 1,  1 ] } });
+        map.addSource("rf", { type: "geojson", data: { type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: rf } } });
+        map.addLayer({ id: "rf", type: "line", source: "rf", paint: { "line-color": "limegreen", "line-width": 2 } });
+        map.addSource("tun", { type: "geojson", data: { type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: tun } } });
+        map.addLayer({ id: "tun", type: "line", source: "tun", paint: { "line-color": "gray", "line-width": 2, "line-dasharray": [ 3,  2 ] } });
+        map.addSource("xlink", { type: "geojson", data: { type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: xlink } } });
+        map.addLayer({ id: "xlink", type: "line", source: "xlink", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 3,  2 ] } });
+        map.addSource("supertun", { type: "geojson", data: { type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: supertun } } });
+        map.addLayer({ id: "supertun", type: "line", source: "supertun", paint: { "line-color": "blue", "line-width": 2, "line-dasharray": [ 3,  2 ] } });
+        map.addSource("longdtd", { type: "geojson", data: { type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: longdtd } } });
+        map.addLayer({ id: "longdtd", type: "line", source: "longdtd", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 1,  1 ] } });
+        map.addSource("measurement", { type: "geojson", data: measurements });
+        map.addLayer({ id: "measurement-points", type: "circle", source: "measurement", paint: { "circle-radius": 5, "circle-color": "red" }, filter: ['in', '$type', 'Point'] });
+        map.addLayer({ id: "measurement-lines", type: "line", source: "measurement", paint: { "line-width": 2, "line-color": "red" }, filter: ['in', '$type', 'LineString'] });
     });
     createMarkers();
     updateMarkers();
@@ -208,12 +212,12 @@ function updateKey() {
 <div class="title">${config.title}</div>
 <table>
 <tr><td>Band</td><td>Nodes</td></tr>
-${rf9 ? "<tr class='" + sel("9") + "'><td><div class='mark' style='background-color: magenta'></div> <a href='#' onclick='filterKey(\"9\")'>900 MHz</a></td><td>" + rf9 + "</td></tr>" : ""}
-${rf2 ? "<tr class='" + sel("2") + "'><td><div class='mark' style='background-color: purple'></div> <a href='#' onclick='filterKey(\"2\")'>2.4 GHz</a></td><td>" + rf2 + "</td></tr>" : ""}
-${rf3 ? "<tr class='" + sel("3") + "'><td><div class='mark' style='background-color: blue'></div> <a href='#' onclick='filterKey(\"3\")'>3.4 GHz</a></td><td>" + rf3 + "</td></tr>" : ""}
-${rf5 ? "<tr class='" + sel("5") + "'><td><div class='mark' style='background-color: orange'></div> <a href='#' onclick='filterKey(\"5\")'>5 GHz</a></td><td>" + rf5 + "</td></tr>" : ""}
-${sn  ? "<tr class='" + sel("s") + "'><td><div class='mark' style='background-color: green'></div> <a href='#' onclick='filterKey(\"s\")'>Supernode</a></td><td>" + sn + "</td></tr>" : ""}
-${nrf ? "<tr class='" + sel("n") + "'><td><div class='mark'></div> <a href='#' onclick='filterKey(\"n\")'>No RF</a></td><td>" + nrf + "</td></tr>" : ""}
+${rf9 ? "<tr class='" + sel("9") + "'><td><div class='mark' style='background-color: " + radioColors["9"] + "'></div> <a href='#' onclick='filterKey(\"9\")'>900 MHz</a></td><td>" + rf9 + "</td></tr>" : ""}
+${rf2 ? "<tr class='" + sel("2") + "'><td><div class='mark' style='background-color: " + radioColors["2"] + "'></div> <a href='#' onclick='filterKey(\"2\")'>2.4 GHz</a></td><td>" + rf2 + "</td></tr>" : ""}
+${rf3 ? "<tr class='" + sel("3") + "'><td><div class='mark' style='background-color: " + radioColors["3"] + "'></div> <a href='#' onclick='filterKey(\"3\")'>3.4 GHz</a></td><td>" + rf3 + "</td></tr>" : ""}
+${rf5 ? "<tr class='" + sel("5") + "'><td><div class='mark' style='background-color: " + radioColors["5"] + "'></div> <a href='#' onclick='filterKey(\"5\")'>5 GHz</a></td><td>" + rf5 + "</td></tr>" : ""}
+${sn  ? "<tr class='" + sel("s") + "'><td><div class='mark' style='background-color: " + radioColors["s"] + "'></div> <a href='#' onclick='filterKey(\"s\")'>Supernode</a></td><td>" + sn + "</td></tr>" : ""}
+${nrf ? "<tr class='" + sel("n") + "'><td><div class='mark' style='background-color: " + radioColors["n"] + "'></div> <a href='#' onclick='filterKey(\"n\")'>No RF</a></td><td>" + nrf + "</td></tr>" : ""}
 <tr><td>Total</td><td>${out.nodeInfo.length}</td></tr>
 </table>
 <div class="footer">
@@ -409,6 +413,75 @@ ${rf.status === 'on' ?
     }).setHTML(lines);
 }
 
+function createMeasurementTool() {
+    map.on("click", e => {
+        if (map.getCanvas().style.cursor !== "crosshair") {
+            return;
+        }
+        const point = {
+            type: 'Feature',
+            geometry: {
+                type: 'Point',
+                coordinates: [ e.lngLat.lng, e.lngLat.lat ]
+            },
+            properties: {}
+        };
+        switch (measurements.features.length) {
+            case 0:
+            case 1:
+            case 3:
+                measurements.features.length = 1;
+                measurements.features[0] = point;
+                map.getSource('measurement').setData(measurements);
+                break;
+            case 2:
+                measurements.features[2] = point;
+                map.getSource('measurement').setData(measurements);
+                break;
+            default:
+                break;
+        }
+    });
+    map.on("mousemove", e => {
+        if (map.getCanvas().style.cursor !== "crosshair") {
+            return;
+        }
+        switch (measurements.features.length) {
+            case 1:
+            case 2:
+                const start = measurements.features[0].geometry.coordinates;
+                measurements.features[1] = {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'LineString',
+                        coordinates: [ start, [ e.lngLat.lng, e.lngLat.lat ] ]
+                    },
+                    properties: {}
+                };
+                map.getSource('measurement').setData(measurements);
+                const bd = bearingAndDistance( [ start[1], start[0] ], [ e.lngLat.lat, e.lngLat.lng ] );
+                document.getElementById("mb").innerHTML = bd.bearing;
+                document.getElementById("md").innerHTML = bd.distance;
+                break;
+            default:
+                break;
+        }
+    });
+}
+
+function toggleMeasure() {
+    if (map.getCanvas().style.cursor === "crosshair") {
+        document.getElementById("mb").innerHTML = "---";
+        document.getElementById("md").innerHTML = "--.-";
+        measurements.features.length = 0;
+        map.getSource('measurement').setData(measurements);
+        map.getCanvas().style.cursor = null;
+    }
+    else {
+        map.getCanvas().style.cursor = "crosshair";
+    }
+}
+
 function start() {
     mapboxgl.accessToken = config.token;
     out.nodeInfo.forEach(node => {
@@ -418,6 +491,7 @@ function start() {
     countRadios();
     updateKey();
     loadMap();
+    createMeasurementTool();
 }
 
 window.addEventListener("load", start);
