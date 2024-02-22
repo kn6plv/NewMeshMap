@@ -1,6 +1,33 @@
 
 let map = null;
-const defaultMapStyle = "mapbox://styles/mapbox/standard";
+const mapStyles = {
+    standard: {
+        version: 8,
+        sources: {
+            osm: {
+                type: "raster",
+                tiles: [ "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png" ],
+                tileSize: 256,
+                attribution: "&copy; OpenStreetMap Contributors",
+                maxzoom: 19
+            }
+        },
+        layers: [{ id: "osm", type: "raster", source: "osm" }]
+    },
+    topology: {
+        version: 8,
+        sources: {
+            osm: {
+                type: "raster",
+                tiles: [ "https://a.tile.opentopomap.org/{z}/{x}/{y}.png" ],
+                tileSize: 256,
+                attribution: "&copy; OpenStreetMap Contributors",
+                maxzoom: 19
+            }
+        },
+        layers: [{ id: "osm", type: "raster", source: "osm" }]
+    }
+};
 const nodes = {};
 const markers = {};
 const rf = [];
@@ -79,7 +106,7 @@ function getFreqRange(freq, chanbw) {
 }
 
 function canonicalHostname(hostname) {
-    return hostname.replace(/^\./, '').replace(/\.local\.mesh$/i,'').toUpperCase();
+    return hostname.replace(/^\./, "").replace(/\.local\.mesh$/i,"").toUpperCase();
 }
 
 function openPopup(chostname) {
@@ -120,7 +147,7 @@ function createMarkers() {
         const data = nodes[cname].data;
         const loc = getVirtualLatLon(data);
         if (loc.lat && loc.lon) {
-            markers[cname] = new mapboxgl.Marker({ className: "marker", color: radioColor(data), scale: 0.75, pitchAlignment: "viewport", rotationAlignment: "map", rotation: radioAzimuth(data) }).setLngLat([ loc.lon, loc.lat ]).setPopup(makePopup(data));
+            markers[cname] = new maplibregl.Marker({ className: "marker", color: radioColor(data), scale: 0.75, pitchAlignment: "viewport", rotationAlignment: "map", rotation: radioAzimuth(data) }).setLngLat([ loc.lon, loc.lat ]).setPopup(makePopup(data));
         }
     }
 }
@@ -136,22 +163,22 @@ function updateMarkers() {
 }
 
 function updateSources() {
-    map.getSource("rf").setData({ type: 'Feature', properties: {}, geometry: { type: 'MultiLineString', coordinates: rf } });
-    map.getSource("tun").setData({ type: 'Feature', properties: {}, geometry: { type: 'MultiLineString', coordinates: tun } });
-    map.getSource("xlink").setData({ type: 'Feature', properties: {}, geometry: { type: 'MultiLineString', coordinates: xlink } });
-    map.getSource("supertun").setData({ type: 'Feature', properties: {}, geometry: { type: 'MultiLineString', coordinates: supertun } });
-    map.getSource("longdtd").setData({ type: 'Feature', properties: {}, geometry: { type: 'MultiLineString', coordinates: longdtd } });
+    map.getSource("rf").setData({ type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: rf } });
+    map.getSource("tun").setData({ type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: tun } });
+    map.getSource("xlink").setData({ type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: xlink } });
+    map.getSource("supertun").setData({ type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: supertun } });
+    map.getSource("longdtd").setData({ type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: longdtd } });
 }
 
 function loadMap() {
-    map = new mapboxgl.Map({
+    map = new maplibregl.Map({
         container: "map",
-        style: defaultMapStyle,
+        style: mapStyles.standard,
         center: [ config.lon, config.lat ],
         zoom: config.zoom,
         hash: true
     });
-    map.addControl(new mapboxgl.NavigationControl({
+    map.addControl(new maplibregl.NavigationControl({
         visualizePitch: true
     }), "bottom-right");
     map.on("style.load", () => {
@@ -166,26 +193,18 @@ function loadMap() {
         map.addSource("longdtd", { type: "geojson", data: { type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: longdtd } } });
         map.addLayer({ id: "longdtd", type: "line", source: "longdtd", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 1,  1 ] } });
         map.addSource("measurement", { type: "geojson", data: measurements });
-        map.addLayer({ id: "measurement-points", type: "circle", source: "measurement", paint: { "circle-radius": 5, "circle-color": "red" }, filter: ['in', '$type', 'Point'] });
-        map.addLayer({ id: "measurement-lines", type: "line", source: "measurement", paint: { "line-width": 2, "line-color": "red" }, filter: ['in', '$type', 'LineString'] });
+        map.addLayer({ id: "measurement-points", type: "circle", source: "measurement", paint: { "circle-radius": 5, "circle-color": "red" }, filter: ["in", "$type", "Point"] });
+        map.addLayer({ id: "measurement-lines", type: "line", source: "measurement", paint: { "line-width": 2, "line-color": "red" }, filter: ["in", "$type", "LineString"] });
     });
     createMarkers();
     updateMarkers();
+    document.querySelector("#ctrl select").innerHTML = Object.keys(mapStyles).map(style => `<option>${style}</option>`)
 }
 
 function selectMap(v) {
-    switch (v) {
-        case "standard":
-            map.setStyle("mapbox://styles/mapbox/standard");
-            break;
-        case "satellite":
-            map.setStyle("mapbox://styles/mapbox/satellite-streets-v12");
-            break;
-        case "outdoor":
-            map.setStyle("mapbox://styles/mapbox/outdoors-v12");
-            break;
-        default:
-            break;
+    const style = mapStyles[v];
+    if (style) {
+        map.setStyle(style, { diff: false });
     }
 }
 
@@ -403,7 +422,7 @@ ${rf.status === 'on' ?
 <tr><td>Firmware</td><td>${i.firmware_version || ""}</td></tr>
 <tr><td>Neighbors</td><td class="neighbors">${neighbors.join("") || "<div>None</div>"}</td></tr>
 </table>`;
-    return new mapboxgl.Popup({
+    return new maplibregl.Popup({
         className: "description",
         closeButton: false,
         maxWidth: "500px",
@@ -488,7 +507,6 @@ function toggleMeasure() {
 }
 
 function start() {
-    mapboxgl.accessToken = config.token;
     out.nodeInfo.forEach(node => {
         nodes[canonicalHostname(node.data.node)] = node;
     });

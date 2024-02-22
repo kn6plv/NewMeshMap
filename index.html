@@ -1,19 +1,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <script src="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js"></script>
+    <script src="https://unpkg.com/maplibre-gl@^2.4/dist/maplibre-gl.js"></script>
     <script src="app.js"></script>
     <script src="config.js"></script>
     <script src="out.js"></script>
-    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css" type="text/css" />
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@^2.4/dist/maplibre-gl.css" type="text/css" />
     <link rel="stylesheet" href="app.css" type="text/css" />
 </head>
 <body>
     <div id="ctrl">
         <select onchange="selectMap(event.target.value)">
             <option>standard</option>
-            <option>satellite</option>
-            <option>outdoor</option>
         </select> map | <a href="/data/out.csv">csv&darr;</a> | <a href="/data/out.kml">kml&darr;</a> | <a href="/compass">phone &#129517;</a> | <a href="#" onclick="toggleMeasure()">measure <div id="mb">---</div>&deg <div id="md">--.-</div> miles</a>
     </div>
     <div id="key"></div>

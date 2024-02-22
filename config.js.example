@@ -2,6 +2,5 @@ const config = {
     title: "AREDN Map",
     lat: 0.0
     lon: 0.0
-    zoom: 8,
-    token: "...MapBox Token..."
+    zoom: 8
 }

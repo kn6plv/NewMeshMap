@@ -108,11 +108,11 @@ body
     padding: 4px 14px 0 0;
 }
 
-.description .mapboxgl-popup-tip
+.description .maplibregl-popup-tip
 {
     display: none;
 }
-.description .mapboxgl-popup-content
+.description .maplibregl-popup-content
 {
     padding: 13px 19px;
 }
