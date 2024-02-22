@@ -467,6 +467,11 @@ function createMeasurementTool() {
                 break;
         }
     });
+    document.addEventListener("keydown", e => {
+        if (e.key === "Escape" && map.getCanvas().style.cursor === "crosshair") {
+            toggleMeasure();
+        }
+    });
 }
 
 function toggleMeasure() {
