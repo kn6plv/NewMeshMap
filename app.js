@@ -30,11 +30,11 @@ const mapStyles = {
 };
 const nodes = {};
 const markers = {};
-const rf = [];
-const tun = [];
-const xlink = [];
-const supertun = [];
-const longdtd = [];
+const rf = { type: "FeatureCollection", features: [] };
+const tun = { type: "FeatureCollection", features: [] };
+const xlink = { type: "FeatureCollection", features: [] };
+const supertun = { type: "FeatureCollection", features: [] };
+const longdtd = { type: "FeatureCollection", features: [] };
 const radioColors = {
     "2": "purple",
     "3": "blue",
@@ -50,6 +50,7 @@ let rf5 = 0;
 let sn = 0;
 let nrf = 0;
 let filterKeyColor = null;
+let linkPopup = null;
 const measurements = { type: "FeatureCollection", features: [] };
 
 function toRadians(d) {
@@ -115,8 +116,12 @@ function openPopup(chostname) {
             markers[m].togglePopup();
         }
     }
+    if (linkPopup) {
+        linkPopup.remove();
+        linkPopup = null;
+    }
     const marker = markers[chostname];
-    if (marker._map) {
+    if (marker && marker._map) {
         map.flyTo({ center: marker.getLngLat(), speed: 1 });
         marker.togglePopup();
     }
@@ -163,11 +168,11 @@ function updateMarkers() {
 }
 
 function updateSources() {
-    map.getSource("rf").setData({ type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: rf } });
-    map.getSource("tun").setData({ type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: tun } });
-    map.getSource("xlink").setData({ type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: xlink } });
-    map.getSource("supertun").setData({ type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: supertun } });
-    map.getSource("longdtd").setData({ type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: longdtd } });
+    map.getSource("rf").setData(rf);
+    map.getSource("tun").setData(tun);
+    map.getSource("xlink").setData(xlink);
+    map.getSource("supertun").setData(supertun);
+    map.getSource("longdtd").setData(longdtd);
 }
 
 function loadMap() {
@@ -182,15 +187,15 @@ function loadMap() {
         visualizePitch: true
     }), "bottom-right");
     map.on("style.load", () => {
-        map.addSource("rf", { type: "geojson", data: { type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: rf } } });
+        map.addSource("rf", { type: "geojson", data: rf });
         map.addLayer({ id: "rf", type: "line", source: "rf", paint: { "line-color": "limegreen", "line-width": 2 } });
-        map.addSource("tun", { type: "geojson", data: { type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: tun } } });
+        map.addSource("tun", { type: "geojson", data: tun });
         map.addLayer({ id: "tun", type: "line", source: "tun", paint: { "line-color": "gray", "line-width": 2, "line-dasharray": [ 3,  2 ] } });
-        map.addSource("xlink", { type: "geojson", data: { type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: xlink } } });
+        map.addSource("xlink", { type: "geojson", data: xlink });
         map.addLayer({ id: "xlink", type: "line", source: "xlink", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 3,  2 ] } });
-        map.addSource("supertun", { type: "geojson", data: { type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: supertun } } });
+        map.addSource("supertun", { type: "geojson", data: supertun });
         map.addLayer({ id: "supertun", type: "line", source: "supertun", paint: { "line-color": "blue", "line-width": 2, "line-dasharray": [ 3,  2 ] } });
-        map.addSource("longdtd", { type: "geojson", data: { type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: longdtd } } });
+        map.addSource("longdtd", { type: "geojson", data: longdtd });
         map.addLayer({ id: "longdtd", type: "line", source: "longdtd", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 1,  1 ] } });
         map.addSource("measurement", { type: "geojson", data: measurements });
         map.addLayer({ id: "measurement-points", type: "circle", source: "measurement", paint: { "circle-radius": 5, "circle-color": "red" }, filter: ["in", "$type", "Point"] });
@@ -280,11 +285,11 @@ function countRadios() {
 }
 
 function updateLinks() {
-    rf.length = 0;
-    tun.length = 0;
-    xlink.length = 0;
-    supertun.length = 0;
-    longdtd.length = 0;
+    rf.features.length = 0;
+    tun.features.length = 0;
+    xlink.features.length = 0;
+    supertun.features.length = 0;
+    longdtd.features.length = 0;
     const done = {};
     for (cname in nodes) {
         const node = nodes[cname];
@@ -307,28 +312,28 @@ function updateLinks() {
                 const id = `${cname}/${chostname}`;
                 if (!done[id] && !done[`${chostname}/${cname}`]) {
                     done[id] = true;
-                    link = [[ dloc.lon, dloc.lat ], [ hloc.lon, hloc.lat ]];
+                    link = { type: "Feature", properties: { from: cname, to: chostname }, geometry: { type: "LineString", coordinates: [[ dloc.lon, dloc.lat ], [ hloc.lon, hloc.lat ]] } };
                 }
             }
             if (link) {
                 switch (l.linkType || "X") {
                     case "RF":
-                        rf.push(link);
+                        rf.features.push(link);
                         break;
                     case "TUN":
                     case "WIREGUARD":
-                        tun.push(link);
+                        tun.features.push(link);
                         break;
                     case "XLINK":
-                        xlink.push(link);
+                        xlink.features.push(link);
                         break;
                     case "SUPER":
-                        supertun.push(link);
+                        supertun.features.push(link);
                         break;
                     case "DTD":
-                        const bd = bearingAndDistance(link[0], link[1]);
+                        const bd = bearingAndDistance(link.geometry.coordinates[0], link.geometry.coordinates[1]);
                         if (bd.distance > 0.03) {
-                            longdtd.push(link);
+                            longdtd.features.push(link);
                         }
                         break;
                     default:
@@ -506,6 +511,32 @@ function toggleMeasure() {
     }
 }
 
+function createLinkTool() {
+    map.on("click", e => {
+        if (map.getCanvas().style.cursor === "crosshair") {
+            return;
+        }
+        const size = 10;
+        const features = map.queryRenderedFeatures([
+            [e.point.x - size / 2, e.point.y - size / 2],
+            [e.point.x + size / 2, e.point.y + size / 2]
+        ]);
+        if (features.length) {
+            const p = features[0].properties;
+            openPopup();
+            linkPopup = new maplibregl.Popup({
+                className: "link-description",
+                closeButton: false,
+                maxWidth: "500px",
+                focusAfterOpen: false,
+                anchor: "bottom",
+            }).setHTML(`<a href="#" onclick="openPopup('${p.from}')">${p.from}</a> &harr; <a href="#" onclick="openPopup('${p.to}')">${p.to}</a>`);
+            linkPopup.setLngLat(e.lngLat);
+            linkPopup.addTo(map);
+        }
+    });
+}
+
 function start() {
     out.nodeInfo.forEach(node => {
         nodes[canonicalHostname(node.data.node)] = node;
@@ -515,6 +546,7 @@ function start() {
     updateKey();
     loadMap();
     createMeasurementTool();
+    createLinkTool();
 }
 
 window.addEventListener("load", start);
