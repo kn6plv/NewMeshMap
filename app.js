@@ -228,6 +228,24 @@ function selectMap(v) {
     }
 }
 
+function downloadData(v) {
+    switch (v) {
+        case "csv":
+        case "kml":
+        case "json":
+            const url = `${location.origin}/data/out.${v}`;
+            const a = document.createElement("A");
+            a.href = url;
+            a.download = url.split("/").pop();
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            break;
+        default:
+            break;
+    }
+}
+
 function filterKey(color) {
     color = radioColors[color];
     if (color === filterKeyColor) {
