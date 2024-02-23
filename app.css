@@ -159,7 +159,7 @@ body
     background-color: grey;
     vertical-align: bottom;
 }
-.marker
+.maplibregl-marker
 {
     cursor: pointer;
 }
