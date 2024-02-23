@@ -527,11 +527,11 @@ function toggleMeasure() {
 }
 
 function createLinkTool() {
+    const size = 10;
     map.on("click", e => {
         if (map.getCanvas().style.cursor === "crosshair" || e.originalEvent === lastMarkerClickEvent) {
             return;
         }
-        const size = 10;
         const features = map.queryRenderedFeatures([
             [e.point.x - size / 2, e.point.y - size / 2],
             [e.point.x + size / 2, e.point.y + size / 2]
@@ -548,6 +548,21 @@ function createLinkTool() {
             }).setHTML(`<a href="#" onclick="openPopup('${p.from}')">${p.from}</a> &harr; <a href="#" onclick="openPopup('${p.to}')">${p.to}</a>`);
             linkPopup.setLngLat(e.lngLat);
             linkPopup.addTo(map);
+        }
+    });
+    map.on("mousemove", e => {
+        if (map.getCanvas().style.cursor === "crosshair") {
+            return;
+        }
+        const features = map.queryRenderedFeatures([
+            [e.point.x - size / 2, e.point.y - size / 2],
+            [e.point.x + size / 2, e.point.y + size / 2]
+        ]);
+        if (features.length) {
+            map.getCanvas().style.cursor = "pointer";
+        }
+        else {
+            map.getCanvas().style.cursor = null;
         }
     });
 }
