@@ -166,7 +166,7 @@ function createMarkers() {
         const data = nodes[cname].data;
         const loc = getVirtualLatLon(data);
         if (loc.lat && loc.lon) {
-            markers[cname] = new maplibregl.Marker({ color: radioColor(data), scale: 0.75, pitchAlignment: "viewport", rotationAlignment: "map", rotation: radioAzimuth(data) }).setLngLat([ loc.lon, loc.lat ]).setPopup(makePopup(data));
+            markers[cname] = new maplibregl.Marker({ anchor: "top", color: radioColor(data), scale: 0.75, pitchAlignment: "viewport", rotationAlignment: "map", rotation: radioAzimuth(data) }).setLngLat([ loc.lon, loc.lat ]).setPopup(makePopup(data));
             markers[cname].getElement().addEventListener("click", e => lastMarkerClickEvent = e);
         }
     }
