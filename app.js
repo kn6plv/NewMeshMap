@@ -65,6 +65,7 @@ let nrf = 0;
 let filterKeyColor = null;
 let linkPopup = null;
 const measurements = { type: "FeatureCollection", features: [] };
+let lastMarkerClickEvent = null;
 
 function toRadians(d) {
     return d * Math.PI / 180;
@@ -166,6 +167,7 @@ function createMarkers() {
         const loc = getVirtualLatLon(data);
         if (loc.lat && loc.lon) {
             markers[cname] = new maplibregl.Marker({ className: "marker", color: radioColor(data), scale: 0.75, pitchAlignment: "viewport", rotationAlignment: "map", rotation: radioAzimuth(data) }).setLngLat([ loc.lon, loc.lat ]).setPopup(makePopup(data));
+            markers[cname].getElement().addEventListener("click", e => lastMarkerClickEvent = e);
         }
     }
 }
@@ -526,7 +528,7 @@ function toggleMeasure() {
 
 function createLinkTool() {
     map.on("click", e => {
-        if (map.getCanvas().style.cursor === "crosshair") {
+        if (map.getCanvas().style.cursor === "crosshair" || e.originalEvent === lastMarkerClickEvent) {
             return;
         }
         const size = 10;
