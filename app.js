@@ -434,7 +434,7 @@ function makePopup(d) {
     const todayStart = new Date().setHours(0, 0, 0, 0) / 1000;
     const yesterdayStart = todayStart - 24 * 60 * 60;
     const weekStart = todayStart - 7 * 24 * 60 * 60;
-    const t = new Date(d.lastseen);
+    const t = new Date(d.lastseen * 1000);
     const h = t.getHours();
     const m = t.getMinutes();
     const lastseen = `${h == 0 ? 12 : h > 12 ? h - 12 : h}:${m < 10 ? "0" + m : m}${h < 12 ? "am" : "pm"}`
