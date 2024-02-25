@@ -188,3 +188,8 @@ body
 {
     text-decoration: underline;
 }
+.link-description div
+{
+    font-size: 10px;
+    line-height: 14px;;
+}

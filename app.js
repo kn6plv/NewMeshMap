@@ -556,6 +556,58 @@ function createLinkTool() {
         ]);
         if (features.length) {
             const p = features[0].properties;
+            let details = "";
+            const from = nodes[p.from];
+            if (from) {
+                const floc = getVirtualLatLon(from && from.data);
+                for (mac in from.data.link_info) {
+                    const l = from.data.link_info[mac];
+                    if (p.to === canonicalHostname(l.hostname)) {
+                        const to = nodes[p.to];
+                        const tloc = getVirtualLatLon(to && to.data);
+                        switch (l.linkType || "X") {
+                            case "RF":
+                                if (floc.lat && floc.lon && tloc.lat && tloc.lon) {
+                                    const bd = bearingAndDistance([ floc.lat, floc.lon ], [ tloc.lat, tloc.lon ]);
+                                    details = "<div>wireless link, " + bd.distance + " miles</div>";
+                                }
+                                else {
+                                    details = "<div>wireless link</div>";
+                                }
+                                break;
+                            case "XLINK":
+                                if (floc.lat && floc.lon && tloc.lat && tloc.lon) {
+                                    const bd = bearingAndDistance([ floc.lat, floc.lon ], [ tloc.lat, tloc.lon ]);
+                                    details = "<div>xlink, " + bd.distance + " miles</div>";
+                                }
+                                else {
+                                    details = "<div>xlink</div>";
+                                }
+                                break;
+                            case "TUN":
+                                details = "<div>legacy tunnel</div>";
+                                break;
+                            case "WIREGUARD":
+                                details = "<div>wireguard tunnel</div>";
+                                break;
+                            case "SUPER":
+                                details = "<div>supernode interconnect</div>";
+                                break;
+                            case "DTD":
+                                if (floc.lat && floc.lon && tloc.lat && tloc.lon) {
+                                    const bd = bearingAndDistance([ floc.lat, floc.lon ], [ tloc.lat, tloc.lon ]);
+                                    details = "<div>long distance device to device link, " + bd.distance + " miles</div>";
+                                }
+                                else {
+                                    details = "<div>long distance device to device link</div>";
+                                }
+                                break;
+                            default:
+                        }
+                        break;
+                    }
+                }
+            }
             openPopup();
             linkPopup = new maplibregl.Popup({
                 className: "link-description",
@@ -563,7 +615,7 @@ function createLinkTool() {
                 maxWidth: "500px",
                 focusAfterOpen: false,
                 anchor: "bottom",
-            }).setHTML(`<a href="#" onclick="openPopup('${p.from}')">${p.from}</a> &harr; <a href="#" onclick="openPopup('${p.to}')">${p.to}</a>`);
+            }).setHTML(`<a href="#" onclick="openPopup('${p.from}')">${p.from}</a> &harr; <a href="#" onclick="openPopup('${p.to}')">${p.to}</a>${details}`);
             linkPopup.setLngLat(e.lngLat);
             linkPopup.addTo(map);
         }
