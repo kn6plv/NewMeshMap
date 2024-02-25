@@ -434,6 +434,10 @@ function makePopup(d) {
     const todayStart = new Date().setHours(0, 0, 0, 0) / 1000;
     const yesterdayStart = todayStart - 24 * 60 * 60;
     const weekStart = todayStart - 7 * 24 * 60 * 60;
+    const t = new Date(d.lastseen);
+    const h = t.getHours();
+    const m = t.getMinutes();
+    const lastseen = `${h == 0 ? 12 : h > 12 ? h - 12 : h}:${m < 10 ? "0" + m : m}${h < 12 ? "am" : "pm"}`
     const lines = `
 <div class="name"><a href="http://${d.node}.local.mesh/" target="_blank">${d.node}</a></div>
 <table>
@@ -444,8 +448,8 @@ ${!isNaN(rf.height) ? "<tr><td>Height</td><td>" + rf.height + " m</td></tr>" : "
 ${!isNaN(rf.azimuth) ? "<tr><td>Azimuth</td><td>" + rf.azimuth + "&deg;</td></tr>" : ""}
 ${!isNaN(rf.elevation) ? "<tr><td>Elevation</td><td>" + rf.elevation + "&deg;</td></tr>" : ""}
 <tr><td>Last seen</td><td>${
-    d.lastseen > todayStart ? "Today" :
-    d.lastseen > yesterdayStart ? "Yesterday" :
+    d.lastseen > todayStart ? lastseen + " today" :
+    d.lastseen > yesterdayStart ? lastseen + " yesterday" :
     d.lastseen > weekStart ? "The last 7 days" : "A long time ago..."
 }
 <tr><td>RF Status</td><td style="text-transform: capitalize">${rf.status}</td></tr>
