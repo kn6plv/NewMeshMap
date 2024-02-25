@@ -1,2 +1,4 @@
 config.js
 out.js
+.DS_Store
+._*
