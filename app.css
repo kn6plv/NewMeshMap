@@ -213,4 +213,7 @@ body
 }
 #ff input {
     margin-left: 2px;
+    font: inherit;
+    border: 1px solid grey;
+    padding: 0 0 0 2px;
 }
