@@ -674,6 +674,14 @@ function createLinkTool() {
     });
 }
 
+function createFindTool() {
+    document.addEventListener("keydown", e => {
+        if (e.key === "Escape" && getMode() === "find") {
+            toggleFind();
+        }
+    });
+}
+
 function toggleFind() {
     if (getMode() === "find") {
         setMode("normal");
@@ -701,6 +709,7 @@ function start() {
     loadMap();
     createMeasurementTool();
     createLinkTool();
+    createFindTool();
 }
 
 window.addEventListener("load", start);
