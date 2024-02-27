@@ -163,6 +163,12 @@ body
 {
     cursor: pointer;
 }
+#mm {
+    display: none;
+}
+.measure #mm {
+    display: inline-block;
+}
 #mb,
 #md
 {
@@ -192,4 +198,19 @@ body
 {
     font-size: 10px;
     line-height: 14px;;
+}
+.measure .maplibregl-canvas
+{
+    cursor: crosshair;
+}
+#ff
+{
+    display: none;
+}
+.find #ff
+{
+    display: inline-block;
+}
+#ff input {
+    margin-left: 2px;
 }

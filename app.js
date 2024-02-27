@@ -124,7 +124,40 @@ function canonicalHostname(hostname) {
     return hostname.replace(/^\./, "").replace(/\.local\.mesh$/i,"").toUpperCase();
 }
 
-function openPopup(chostname) {
+function getMode() {
+    const c = document.body.classList;
+    if (c.contains("measure")) {
+        return "measure";
+    }
+    if (c.contains("find")) {
+        return "find";
+    }
+    return "normal";
+}
+
+function setMode(mode) {
+    const c = document.body.classList;
+    if (c.contains("measure")) {
+        document.getElementById("mb").innerHTML = "---";
+        document.getElementById("md").innerHTML = "--.-";
+        measurements.features.length = 0;
+        map.getSource('measurement').setData(measurements);
+    }
+    else if (c.contains("find")) {
+        document.querySelector("#ff input").value = "";
+    }
+    c.remove("normal");
+    c.remove("measure");
+    c.remove("find");
+    c.add(mode);
+    if (mode === "find") {
+        setTimeout(() => {
+            document.querySelector("#ff input").focus();
+        }, 0);
+    }
+}
+
+function openPopup(chostname, zoom) {
     for (m in markers) {
         if (markers[m].getPopup().isOpen()) {
             markers[m].togglePopup();
@@ -136,7 +169,7 @@ function openPopup(chostname) {
     }
     const marker = markers[chostname];
     if (marker && marker._map) {
-        map.flyTo({ center: marker.getLngLat(), speed: 1 });
+        map.flyTo({ center: marker.getLngLat(), speed: 1, zoom: zoom });
         marker.togglePopup();
     }
 }
@@ -476,7 +509,7 @@ ${rf.status === 'on' ?
 
 function createMeasurementTool() {
     map.on("click", e => {
-        if (map.getCanvas().style.cursor !== "crosshair") {
+        if (getMode() !== "measure") {
             return;
         }
         const point = {
@@ -504,7 +537,7 @@ function createMeasurementTool() {
         }
     });
     map.on("mousemove", e => {
-        if (map.getCanvas().style.cursor !== "crosshair") {
+        if (getMode() !== "measure") {
             return;
         }
         switch (measurements.features.length) {
@@ -529,29 +562,25 @@ function createMeasurementTool() {
         }
     });
     document.addEventListener("keydown", e => {
-        if (e.key === "Escape" && map.getCanvas().style.cursor === "crosshair") {
+        if (e.key === "Escape" && getMode() === "measure") {
             toggleMeasure();
         }
     });
 }
 
 function toggleMeasure() {
-    if (map.getCanvas().style.cursor === "crosshair") {
-        document.getElementById("mb").innerHTML = "---";
-        document.getElementById("md").innerHTML = "--.-";
-        measurements.features.length = 0;
-        map.getSource('measurement').setData(measurements);
-        map.getCanvas().style.cursor = null;
+    if (getMode() === "measure") {
+        setMode("normal");
     }
     else {
-        map.getCanvas().style.cursor = "crosshair";
+        setMode("measure");
     }
 }
 
 function createLinkTool() {
     const size = 10;
     map.on("click", e => {
-        if (map.getCanvas().style.cursor === "crosshair" || e.originalEvent === lastMarkerClickEvent) {
+        if (getMode() === "measure" || e.originalEvent === lastMarkerClickEvent) {
             return;
         }
         const features = map.queryRenderedFeatures([
@@ -625,7 +654,7 @@ function createLinkTool() {
         }
     });
     map.on("mousemove", e => {
-        if (map.getCanvas().style.cursor === "crosshair") {
+        if (getMode() === "measure") {
             return;
         }
         const features = map.queryRenderedFeatures([
@@ -639,6 +668,23 @@ function createLinkTool() {
             map.getCanvas().style.cursor = null;
         }
     });
+}
+
+function toggleFind() {
+    if (getMode() === "find") {
+        setMode("normal");
+    }
+    else {
+        setMode("find");
+    }
+}
+
+function findNode(name) {
+    name = canonicalHostname(name);
+    if (nodes[name]) {
+        openPopup(name, 13);
+        toggleFind();
+    }
 }
 
 function start() {

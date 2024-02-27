@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" type="text/css" />
     <link rel="stylesheet" href="app.css" type="text/css" />
 </head>
-<body>
+<body class="normal">
     <div id="ctrl">
         <select onchange="selectMap(event.target.value)">
             <option>standard</option>
@@ -18,7 +18,7 @@
             <option>csv</option>
             <option>kml</option>
             <option>json</option>
-        </select> | <a href="compass">phone &#129517;</a> | <a href="#" onclick="toggleMeasure()">measure <div id="mb">---</div>&deg <div id="md">--.-</div> miles</a>
+        </select> | <a href="compass">phone &#129517;</a> | <a href="#" onclick="toggleFind()">find</a><div id="ff">&nbsp;<input placeholder="node name" onchange="findNode(event.target.value)"/></div> | <a href="#" onclick="toggleMeasure()">measure</a><div id="mm">&nbsp;<div id="mb">---</div>&deg <div id="md">--.-</div> miles</div>
     </div>
     <div id="key"></div>
     <div id="map"></div>
