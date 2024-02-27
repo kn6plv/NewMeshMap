@@ -34,7 +34,7 @@ const mapStyles = {
                 type: "raster",
                 tiles: [ "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}" ],
                 tileSize: 256,
-                attribution: "&copy; Google",
+                attribution: "&copy; Landsat / Copernicus, Maxar Technologies",
                 maxzoom: 19
             }
         },
