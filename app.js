@@ -169,7 +169,11 @@ function openPopup(chostname, zoom) {
     }
     const marker = markers[chostname];
     if (marker && marker._map) {
-        map.flyTo({ center: marker.getLngLat(), speed: 1, zoom: zoom });
+        const options = { center: marker.getLngLat(), speed: 1 };
+        if (zoom !== undefined) {
+            options.zoom = zoom;
+        }
+        map.flyTo(options);
         marker.togglePopup();
     }
 }
