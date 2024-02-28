@@ -692,7 +692,7 @@ function toggleFind() {
 }
 
 function findNode(name) {
-    name = canonicalHostname(name);
+    name = canonicalHostname(name.trim());
     if (nodes[name]) {
         openPopup(name, 13);
         toggleFind();
