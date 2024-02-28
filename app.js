@@ -697,6 +697,16 @@ function findNode(name) {
         openPopup(name, 13);
         toggleFind();
     }
+    else if (config.geoapify) {
+        fetch(`https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(name)}&apiKey=${config.geoapify}`, { method: "GET" })
+            .then(r => r.json())
+            .then(r => {
+                openPopup();
+                map.flyTo({ center: r.features[0].geometry.coordinates, speed: 1, zoom: 13 });
+                toggleFind();
+            })
+        ;
+    }
 }
 
 function start() {
