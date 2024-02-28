@@ -169,7 +169,7 @@ function openPopup(chostname, zoom) {
     }
     const marker = markers[chostname];
     if (marker && marker._map) {
-        const options = { center: marker.getLngLat(), speed: 1 };
+        const options = { center: marker.getLngLat(), speed: 1, padding: { top: 400, right: 400, bottom: 0, left: 0 } };
         if (zoom !== undefined) {
             options.zoom = zoom;
         }
@@ -702,7 +702,7 @@ function findNode(name) {
             .then(r => r.json())
             .then(r => {
                 openPopup();
-                map.flyTo({ center: r.features[0].geometry.coordinates, speed: 1, zoom: 13 });
+                map.fitBounds(r.features[0].bbox, { speed: 1, maxZoom: 13 });
                 toggleFind();
             })
         ;
