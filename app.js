@@ -702,7 +702,12 @@ function findNode(name) {
             .then(r => r.json())
             .then(r => {
                 openPopup();
-                map.fitBounds(r.features[0].bbox, { speed: 1, maxZoom: 13 });
+                if (r.features[0].bbox) {
+                    map.fitBounds(r.features[0].bbox, { speed: 1, maxZoom: 13 });
+                }
+                else {
+                    map.flyTo({ center: r.features[0].geometry.coordinates, speed: 1, zoom: 13 });
+                }
                 toggleFind();
             })
         ;
