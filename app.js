@@ -41,6 +41,46 @@ const mapStyles = {
         layers: [{ id: "osm", type: "raster", source: "osm" }]
     }
 };
+if (config.maptiler) {
+    mapStyles.topology.sources.maptiler = {
+        type: "raster-dem",
+        url: `https://api.maptiler.com/tiles/terrain-rgb/tiles.json?key=${config.maptiler}`
+    };
+    mapStyles.topology.terrain = {
+        source: "maptiler",
+        exaggeration: 2
+    };
+    mapStyles.standard.sources.openmaptiles = {
+        type: "vector",
+        url: `https://api.maptiler.com/tiles/v3/tiles.json?key=${config.maptiler}`
+    };
+    mapStyles.standard.layers.push({
+        id: "3d-buildings",
+        source: "openmaptiles",
+        "source-layer": "building",
+        type: "fill-extrusion",
+        minzoom: 14,
+        paint:
+        {
+            "fill-extrusion-color": "lightgray",
+            "fill-extrusion-base":
+            [
+                "case",
+                [">=", ["get", "zoom"], 14], ["get", "render_min_height"],
+                0
+            ],
+            "fill-extrusion-height":
+            [
+                "interpolate",
+                ["linear"],
+                ["zoom"],
+                14, 0,
+                16, ["get", "render_height"]
+            ]
+        }
+    });
+}
+
 const nodes = {};
 const markers = {};
 const rf = { type: "FeatureCollection", features: [] };
