@@ -1,5 +1,13 @@
 
 let map = null;
+
+const rf = { type: "FeatureCollection", features: [] };
+const tun = { type: "FeatureCollection", features: [] };
+const xlink = { type: "FeatureCollection", features: [] };
+const supertun = { type: "FeatureCollection", features: [] };
+const longdtd = { type: "FeatureCollection", features: [] };
+const measurements = { type: "FeatureCollection", features: [] };
+
 const mapStyles = {
     standard: {
         version: 8,
@@ -10,9 +18,24 @@ const mapStyles = {
                 tileSize: 256,
                 attribution: "&copy; OpenStreetMap Contributors",
                 maxzoom: 19
-            }
+            },
+            rf: { type: "geojson", data: rf },
+            tun: { type: "geojson", data: tun },
+            xlink: { type: "geojson", data: xlink },
+            supertun: { type: "geojson", data: supertun },
+            longdtd: { type: "geojson", data: longdtd },
+            measurement: { type: "geojson", data: measurements }
         },
-        layers: [{ id: "osm", type: "raster", source: "osm" }]
+        layers: [
+            { id: "osm", type: "raster", source: "osm" },
+            { id: "rf", type: "line", source: "rf", paint: { "line-color": "limegreen", "line-width": 2 } },
+            { id: "tun", type: "line", source: "tun", paint: { "line-color": "gray", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
+            { id: "xlink", type: "line", source: "xlink", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
+            { id: "supertun", type: "line", source: "supertun", paint: { "line-color": "blue", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
+            { id: "longdtd", type: "line", source: "longdtd", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 1,  1 ] } },
+            { id: "measurement-points", type: "circle", source: "measurement", paint: { "circle-radius": 5, "circle-color": "red" }, filter: ["in", "$type", "Point"] },
+            { id: "measurement-lines", type: "line", source: "measurement", paint: { "line-width": 2, "line-color": "red" }, filter: ["in", "$type", "LineString"] }
+        ]
     },
     topology: {
         version: 8,
@@ -23,9 +46,24 @@ const mapStyles = {
                 tileSize: 256,
                 attribution: "&copy; OpenStreetMap Contributors",
                 maxzoom: 17
-            }
+            },
+            rf: { type: "geojson", data: rf },
+            tun: { type: "geojson", data: tun },
+            xlink: { type: "geojson", data: xlink },
+            supertun: { type: "geojson", data: supertun },
+            longdtd: { type: "geojson", data: longdtd },
+            measurement: { type: "geojson", data: measurements }
         },
-        layers: [{ id: "osm", type: "raster", source: "osm" }]
+        layers: [
+            { id: "osm", type: "raster", source: "osm" },
+            { id: "rf", type: "line", source: "rf", paint: { "line-color": "limegreen", "line-width": 2 } },
+            { id: "tun", type: "line", source: "tun", paint: { "line-color": "gray", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
+            { id: "xlink", type: "line", source: "xlink", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
+            { id: "supertun", type: "line", source: "supertun", paint: { "line-color": "blue", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
+            { id: "longdtd", type: "line", source: "longdtd", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 1,  1 ] } },
+            { id: "measurement-points", type: "circle", source: "measurement", paint: { "circle-radius": 5, "circle-color": "red" }, filter: ["in", "$type", "Point"] },
+            { id: "measurement-lines", type: "line", source: "measurement", paint: { "line-width": 2, "line-color": "red" }, filter: ["in", "$type", "LineString"] }
+        ]
     },
     satellite: {
         version: 8,
@@ -36,9 +74,24 @@ const mapStyles = {
                 tileSize: 256,
                 attribution: "&copy; Landsat / Copernicus, Maxar Technologies",
                 maxzoom: 20
-            }
+            },
+            rf: { type: "geojson", data: rf },
+            tun: { type: "geojson", data: tun },
+            xlink: { type: "geojson", data: xlink },
+            supertun: { type: "geojson", data: supertun },
+            longdtd: { type: "geojson", data: longdtd },
+            measurement: { type: "geojson", data: measurements }
         },
-        layers: [{ id: "osm", type: "raster", source: "osm" }]
+        layers: [
+            { id: "osm", type: "raster", source: "osm" },
+            { id: "rf", type: "line", source: "rf", paint: { "line-color": "limegreen", "line-width": 2 } },
+            { id: "tun", type: "line", source: "tun", paint: { "line-color": "gray", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
+            { id: "xlink", type: "line", source: "xlink", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
+            { id: "supertun", type: "line", source: "supertun", paint: { "line-color": "blue", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
+            { id: "longdtd", type: "line", source: "longdtd", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 1,  1 ] } },
+            { id: "measurement-points", type: "circle", source: "measurement", paint: { "circle-radius": 5, "circle-color": "red" }, filter: ["in", "$type", "Point"] },
+            { id: "measurement-lines", type: "line", source: "measurement", paint: { "line-width": 2, "line-color": "red" }, filter: ["in", "$type", "LineString"] }
+        ]
     }
 };
 if (config.maptiler) {
@@ -85,11 +138,6 @@ if (config.maptiler) {
 
 const nodes = {};
 const markers = {};
-const rf = { type: "FeatureCollection", features: [] };
-const tun = { type: "FeatureCollection", features: [] };
-const xlink = { type: "FeatureCollection", features: [] };
-const supertun = { type: "FeatureCollection", features: [] };
-const longdtd = { type: "FeatureCollection", features: [] };
 const radioColors = {
     "2": "purple",
     "3": "blue",
@@ -106,7 +154,6 @@ let sn = 0;
 let nrf = 0;
 let filterKeyColor = null;
 let linkPopup = null;
-const measurements = { type: "FeatureCollection", features: [] };
 let lastMarkerClickEvent = null;
 
 function toRadians(d) {
@@ -235,7 +282,7 @@ function radioColor(d) {
 function radioAzimuth(d) {
     const a = d.meshrf.azimuth;
     if (isNaN(a)) {
-        return 0;
+        return null;
     }
     return 180 + parseInt(a);
 }
@@ -245,7 +292,8 @@ function createMarkers() {
         const data = nodes[cname].data;
         const loc = getVirtualLatLon(data);
         if (loc.lat && loc.lon) {
-            markers[cname] = new maplibregl.Marker({ anchor: "top", color: radioColor(data), scale: 0.75, pitchAlignment: "viewport", rotationAlignment: "map", rotation: radioAzimuth(data) }).setLngLat([ loc.lon, loc.lat ]).setPopup(makePopup(data));
+            const rot = radioAzimuth(data);
+            markers[cname] = new maplibregl.Marker({ anchor: "top", color: radioColor(data), scale: 0.75, pitchAlignment: "viewport", rotationAlignment: rot === null ? "viewport" : "map", rotation: rot }).setLngLat([ loc.lon, loc.lat ]).setPopup(makePopup(data));
             markers[cname].getElement().addEventListener("click", e => lastMarkerClickEvent = e);
         }
     }
@@ -284,21 +332,6 @@ function loadMap() {
         source: 'maptiler',
         exaggeration: 2
     }), "bottom-right");
-    map.on("style.load", () => {
-        map.addSource("rf", { type: "geojson", data: rf });
-        map.addLayer({ id: "rf", type: "line", source: "rf", paint: { "line-color": "limegreen", "line-width": 2 } });
-        map.addSource("tun", { type: "geojson", data: tun });
-        map.addLayer({ id: "tun", type: "line", source: "tun", paint: { "line-color": "gray", "line-width": 2, "line-dasharray": [ 3,  2 ] } });
-        map.addSource("xlink", { type: "geojson", data: xlink });
-        map.addLayer({ id: "xlink", type: "line", source: "xlink", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 3,  2 ] } });
-        map.addSource("supertun", { type: "geojson", data: supertun });
-        map.addLayer({ id: "supertun", type: "line", source: "supertun", paint: { "line-color": "blue", "line-width": 2, "line-dasharray": [ 3,  2 ] } });
-        map.addSource("longdtd", { type: "geojson", data: longdtd });
-        map.addLayer({ id: "longdtd", type: "line", source: "longdtd", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 1,  1 ] } });
-        map.addSource("measurement", { type: "geojson", data: measurements });
-        map.addLayer({ id: "measurement-points", type: "circle", source: "measurement", paint: { "circle-radius": 5, "circle-color": "red" }, filter: ["in", "$type", "Point"] });
-        map.addLayer({ id: "measurement-lines", type: "line", source: "measurement", paint: { "line-width": 2, "line-color": "red" }, filter: ["in", "$type", "LineString"] });
-    });
     createMarkers();
     updateMarkers();
     document.querySelector("#ctrl select").innerHTML = Object.keys(mapStyles).map(style => `<option>${style}</option>`)
@@ -539,7 +572,7 @@ ${!isNaN(rf.elevation) ? "<tr><td>Elevation</td><td>" + rf.elevation + "&deg;</t
 ${rf.status === 'on' ?
     "<tr><td>SSID</td><td>" + rf.ssid + "</td></tr>" +
     "<tr><td>Channel</td><td>" + rf.channel + "</td></tr>" +
-    "<tr><td>Frequency</td><td>" + getFreqRange(rf.freq, rf.chanbw) + "</td></tr>" +
+    (rf.freq ? "<tr><td>Frequency</td><td>" + getFreqRange(rf.freq, rf.chanbw) + "</td></tr>" : "") +
     "<tr><td>Bandwidth</td><td>" + rf.chanbw + " MHz</td></tr>" +
     "<tr><td>MAC</td><td>" + d.interfaces[0].mac + "</td></tr>" : ""
 }
