@@ -101,8 +101,15 @@ if (config.maptiler) {
         tileSize: 512
     };
     mapStyles.topology.terrain = {
-        source: "maptiler",
-        exaggeration: 2
+        source: "maptiler"
+    };
+    mapStyles.satellite.sources.maptiler = {
+        type: "raster-dem",
+        url: `https://api.maptiler.com/tiles/terrain-rgb/tiles.json?key=${config.maptiler}`,
+        tileSize: 512
+    };
+    mapStyles.satellite.terrain = {
+        source: "maptiler"
     };
     mapStyles.standard.sources.openmaptiles = {
         type: "vector",
@@ -329,8 +336,7 @@ function loadMap() {
         visualizePitch: true
     }), "bottom-right");
     map.addControl(new maplibregl.TerrainControl({
-        source: 'maptiler',
-        exaggeration: 2
+        source: 'maptiler'
     }), "bottom-right");
     createMarkers();
     updateMarkers();
