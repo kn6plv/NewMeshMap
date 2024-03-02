@@ -6,7 +6,7 @@ const mapStyles = {
         sources: {
             osm: {
                 type: "raster",
-                tiles: [ "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png" ],
+                tiles: [ "https://tile.openstreetmap.org/{z}/{x}/{y}.png" ],
                 tileSize: 256,
                 attribution: "&copy; OpenStreetMap Contributors",
                 maxzoom: 19
@@ -19,10 +19,10 @@ const mapStyles = {
         sources: {
             osm: {
                 type: "raster",
-                tiles: [ "https://a.tile.opentopomap.org/{z}/{x}/{y}.png" ],
+                tiles: [ "https://tile.opentopomap.org/{z}/{x}/{y}.png" ],
                 tileSize: 256,
                 attribution: "&copy; OpenStreetMap Contributors",
-                maxzoom: 19
+                maxzoom: 17
             }
         },
         layers: [{ id: "osm", type: "raster", source: "osm" }]
@@ -35,7 +35,7 @@ const mapStyles = {
                 tiles: [ "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}" ],
                 tileSize: 256,
                 attribution: "&copy; Landsat / Copernicus, Maxar Technologies",
-                maxzoom: 19
+                maxzoom: 20
             }
         },
         layers: [{ id: "osm", type: "raster", source: "osm" }]
@@ -44,7 +44,8 @@ const mapStyles = {
 if (config.maptiler) {
     mapStyles.topology.sources.maptiler = {
         type: "raster-dem",
-        url: `https://api.maptiler.com/tiles/terrain-rgb/tiles.json?key=${config.maptiler}`
+        url: `https://api.maptiler.com/tiles/terrain-rgb/tiles.json?key=${config.maptiler}`,
+        tileSize: 512
     };
     mapStyles.topology.terrain = {
         source: "maptiler",
@@ -52,7 +53,8 @@ if (config.maptiler) {
     };
     mapStyles.standard.sources.openmaptiles = {
         type: "vector",
-        url: `https://api.maptiler.com/tiles/v3/tiles.json?key=${config.maptiler}`
+        url: `https://api.maptiler.com/tiles/v3/tiles.json?key=${config.maptiler}`,
+        tileSize: 512
     };
     mapStyles.standard.layers.push({
         id: "3d-buildings",
