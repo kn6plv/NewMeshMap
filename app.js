@@ -280,6 +280,9 @@ function loadMap() {
     map.addControl(new maplibregl.NavigationControl({
         visualizePitch: true
     }), "bottom-right");
+    map.addControl(new maplibregl.TerrainControl({
+        source: 'maptiler'
+    }), "bottom-right");
     map.on("style.load", () => {
         map.addSource("rf", { type: "geojson", data: rf });
         map.addLayer({ id: "rf", type: "line", source: "rf", paint: { "line-color": "limegreen", "line-width": 2 } });
