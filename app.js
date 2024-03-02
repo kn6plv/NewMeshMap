@@ -281,7 +281,8 @@ function loadMap() {
         visualizePitch: true
     }), "bottom-right");
     map.addControl(new maplibregl.TerrainControl({
-        source: 'maptiler'
+        source: 'maptiler',
+        exaggeration: 2
     }), "bottom-right");
     map.on("style.load", () => {
         map.addSource("rf", { type: "geojson", data: rf });
