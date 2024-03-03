@@ -43,6 +43,9 @@ async function walkOne() {
                             node: node.node,
                             lat: parseFloat(node.lat),
                             lon: parseFloat(node.lon),
+                            grid_square: node.grid_square,
+                            api_version: node.api_version,
+                            lastseen: Math.floor(Date.now() / 1000),
                             node_details: {
                                 description: d.description,
                                 hardware: d.hardware,
