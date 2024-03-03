@@ -219,7 +219,7 @@ function getFreqRange(freq, chanbw) {
 }
 
 function canonicalHostname(hostname) {
-    return hostname.replace(/^\./, "").replace(/\.local\.mesh$/i,"").toUpperCase();
+    return hostname && hostname.toUpperCase().replace(/^\./, "").replace(/^DTDLINK\./i, "").replace(/^MID\d+\./i, "").replace(/^XLINK\d+\./i, "").replace(/\.LOCAL\.MESH$/, "");
 }
 
 function getMode() {
@@ -299,11 +299,20 @@ function radioAzimuth(d) {
 function createMarkers() {
     for (cname in nodes) {
         const data = nodes[cname].data;
-        const loc = getVirtualLatLon(data);
-        if (loc.lat && loc.lon) {
-            const rot = radioAzimuth(data);
-            markers[cname] = new maplibregl.Marker({ anchor: "top", color: radioColor(data), scale: 0.75, pitchAlignment: "viewport", rotationAlignment: rot === null ? "viewport" : "map", rotation: rot }).setLngLat([ loc.lon, loc.lat ]).setPopup(makePopup(data));
-            markers[cname].getElement().addEventListener("click", e => lastMarkerClickEvent = e);
+        if (!markers[cname]) {
+            const loc = getVirtualLatLon(data);
+            if (loc.lat && loc.lon) {
+                const rot = radioAzimuth(data);
+                markers[cname] = new maplibregl.Marker({ anchor: "top", color: radioColor(data), scale: 0.75, pitchAlignment: "viewport", rotationAlignment: rot === null ? "viewport" : "map", rotation: rot }).setLngLat([ loc.lon, loc.lat ]).setPopup(makePopup(data));
+                markers[cname].getElement().addEventListener("click", e => {
+                    lastMarkerClickEvent = e;
+                });
+            }
+        }
+        else {
+            if (!markers[cname].getPopup().isOpen()) {
+                markers[cname].setPopup(makePopup(data));
+            }
         }
     }
 }
@@ -311,9 +320,13 @@ function createMarkers() {
 function updateMarkers() {
     for (cname in markers) {
         const m = markers[cname];
-        m.remove();
         if (!filterKeyColor || filterKeyColor == m._color) {
-            m.addTo(map);
+            if (!m._map) {
+                m.addTo(map);
+            }
+        }
+        else {
+            m.remove();
         }
     }
 }
@@ -409,6 +422,12 @@ ${nrf ? "<tr class='" + sel("n") + "'><td><div class='mark' style='background-co
 }
 
 function countRadios() {
+    sn = 0;
+    rf3 = 0;
+    rf2 = 0;
+    rf5 = 0;
+    rf9 = 0;
+    nrf = 0;
     for (cname in nodes) {
         const node = nodes[cname];
         const d = node.data;
@@ -678,7 +697,9 @@ function createLinkTool() {
         const features = map.queryRenderedFeatures([
             [e.point.x - size / 2, e.point.y - size / 2],
             [e.point.x + size / 2, e.point.y + size / 2]
-        ]);
+        ], {
+            layers: [ "rf", "tun", "xlink", "supertun", "longdtd" ]
+        });
         if (features.length) {
             const p = features[0].properties;
             let details = "";
@@ -752,7 +773,9 @@ function createLinkTool() {
         const features = map.queryRenderedFeatures([
             [e.point.x - size / 2, e.point.y - size / 2],
             [e.point.x + size / 2, e.point.y + size / 2]
-        ]);
+        ], {
+            layers: [ "rf", "tun", "xlink", "supertun", "longdtd" ]
+        });
         if (features.length) {
             map.getCanvas().style.cursor = "pointer";
         }
@@ -813,6 +836,26 @@ function start() {
     createMeasurementTool();
     createLinkTool();
     createFindTool();
+    if (typeof walk === "function") {
+        document.getElementById("ctrl-data").style.display = "none";
+        walk(() => {
+            if (!map.getSource("rf")) {
+                return;
+            }
+            out.nodeInfo.forEach(node => {
+                const cname = canonicalHostname(node.data.node);
+                if (!nodes[cname]) {
+                    nodes[cname] = node;
+                }
+            });
+            updateLinks();
+            countRadios();
+            updateKey();
+            createMarkers();
+            updateMarkers();
+            updateSources();
+        });
+    }
 }
 
 window.addEventListener("load", start);
