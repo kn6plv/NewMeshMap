@@ -4,5 +4,10 @@ const config = {
     lon: 0.0,
     zoom: 8,
     geoapify: "... key ...",
-    maptiler: "... key ..."
+    maptiler: "... key ...",
+    sources: {
+        openstreetmaps: { ... },
+        opentopomap: { ... },
+        landsat: { ... }
+    }
 }

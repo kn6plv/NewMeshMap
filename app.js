@@ -12,7 +12,7 @@ const mapStyles = {
     standard: {
         version: 8,
         sources: {
-            osm: {
+            openstreetmaps: {
                 type: "raster",
                 tiles: [ "https://tile.openstreetmap.org/{z}/{x}/{y}.png" ],
                 tileSize: 256,
@@ -27,7 +27,7 @@ const mapStyles = {
             measurement: { type: "geojson", data: measurements }
         },
         layers: [
-            { id: "osm", type: "raster", source: "osm" },
+            { id: "openstreetmaps", type: "raster", source: "openstreetmaps" },
             { id: "rf", type: "line", source: "rf", paint: { "line-color": "limegreen", "line-width": 2 } },
             { id: "tun", type: "line", source: "tun", paint: { "line-color": "gray", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
             { id: "xlink", type: "line", source: "xlink", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
@@ -40,7 +40,7 @@ const mapStyles = {
     topology: {
         version: 8,
         sources: {
-            osm: {
+            opentopomap: {
                 type: "raster",
                 tiles: [ "https://tile.opentopomap.org/{z}/{x}/{y}.png" ],
                 tileSize: 256,
@@ -55,7 +55,7 @@ const mapStyles = {
             measurement: { type: "geojson", data: measurements }
         },
         layers: [
-            { id: "osm", type: "raster", source: "osm" },
+            { id: "opentopomap", type: "raster", source: "opentopomap" },
             { id: "rf", type: "line", source: "rf", paint: { "line-color": "limegreen", "line-width": 2 } },
             { id: "tun", type: "line", source: "tun", paint: { "line-color": "gray", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
             { id: "xlink", type: "line", source: "xlink", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
@@ -68,7 +68,7 @@ const mapStyles = {
     satellite: {
         version: 8,
         sources: {
-            osm: {
+            landsat: {
                 type: "raster",
                 tiles: [ "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}" ],
                 tileSize: 256,
@@ -83,7 +83,7 @@ const mapStyles = {
             measurement: { type: "geojson", data: measurements }
         },
         layers: [
-            { id: "osm", type: "raster", source: "osm" },
+            { id: "landsat", type: "raster", source: "landsat" },
             { id: "rf", type: "line", source: "rf", paint: { "line-color": "limegreen", "line-width": 2 } },
             { id: "tun", type: "line", source: "tun", paint: { "line-color": "gray", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
             { id: "xlink", type: "line", source: "xlink", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
@@ -143,6 +143,15 @@ if (config.maptiler) {
             ]
         }
     });
+}
+if (config.sources) {
+    for (t in config.sources) {
+        for (k in mapStyles) {
+            if (mapStyles[k].sources[t]) {
+                mapStyles[k].sources[t] = config.sources[t];
+            }
+        }
+    }
 }
 
 const nodes = {};
