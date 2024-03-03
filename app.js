@@ -345,7 +345,8 @@ function loadMap() {
         style: mapStyles.standard,
         center: [ config.lon, config.lat ],
         zoom: config.zoom,
-        hash: true
+        hash: true,
+        maxPitch: 68
     });
     map.addControl(new maplibregl.NavigationControl({
         visualizePitch: true
