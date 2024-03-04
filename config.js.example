@@ -3,6 +3,7 @@ const config = {
     lat: 0.0,
     lon: 0.0,
     zoom: 8,
+    idle: 0 | ... seconds ...,
     geoapify: "... key ...",
     maptiler: "... key ...",
     sources: {

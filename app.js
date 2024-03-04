@@ -173,6 +173,7 @@ let nrf = 0;
 let filterKeyColor = null;
 let linkPopup = null;
 let lastMarkerClickEvent = null;
+let currentStyle = "standard";
 
 function toRadians(d) {
     return d * Math.PI / 180;
@@ -371,7 +372,8 @@ function loadMap() {
 
 function selectMap(v) {
     const style = mapStyles[v];
-    if (style) {
+    if (style && v !== currentStyle) {
+        currentStyle = v;
         map.setStyle(style, { diff: false });
     }
 }
@@ -835,6 +837,22 @@ function findNode(name) {
     }
 }
 
+function createIdle() {
+    let idle = null;
+    function notIdle() {
+        clearTimeout(idle);
+        idle = setTimeout(function() {
+            selectMap("standard");
+            document.querySelector("#ctrl select").value = "standard";
+            openPopup();
+            map.flyTo({ center: [ config.lon, config.lat ], speed: 1, zoom: config.zoom, pitch: 0, bearing: 0 });
+        }, config.idle * 1000);
+    }
+    [ "mousemove", "mousedown", "touchstart", "click", "keypress", "scroll" ].forEach(function(name) {
+        document.addEventListener(name, notIdle);
+    });
+}
+
 function start() {
     out.nodeInfo.forEach(node => {
         nodes[canonicalHostname(node.data.node)] = node;
@@ -865,6 +883,9 @@ function start() {
             updateMarkers();
             updateSources();
         });
+    }
+    if (config.idle) {
+        createIdle();
     }
 }
 
