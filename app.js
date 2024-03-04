@@ -37,6 +37,34 @@ const mapStyles = {
             { id: "measurement-lines", type: "line", source: "measurement", paint: { "line-width": 2, "line-color": "red" }, filter: ["in", "$type", "LineString"] }
         ]
     },
+    buildings: {
+        version: 8,
+        sources: {
+            openstreetmaps: {
+                type: "raster",
+                tiles: [ "https://tile.openstreetmap.org/{z}/{x}/{y}.png" ],
+                tileSize: 256,
+                attribution: "&copy; OpenStreetMap Contributors",
+                maxzoom: 19
+            },
+            rf: { type: "geojson", data: rf },
+            tun: { type: "geojson", data: tun },
+            xlink: { type: "geojson", data: xlink },
+            supertun: { type: "geojson", data: supertun },
+            longdtd: { type: "geojson", data: longdtd },
+            measurement: { type: "geojson", data: measurements }
+        },
+        layers: [
+            { id: "openstreetmaps", type: "raster", source: "openstreetmaps" },
+            { id: "rf", type: "line", source: "rf", paint: { "line-color": "limegreen", "line-width": 2 } },
+            { id: "tun", type: "line", source: "tun", paint: { "line-color": "gray", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
+            { id: "xlink", type: "line", source: "xlink", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
+            { id: "supertun", type: "line", source: "supertun", paint: { "line-color": "blue", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
+            { id: "longdtd", type: "line", source: "longdtd", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 1,  1 ] } },
+            { id: "measurement-points", type: "circle", source: "measurement", paint: { "circle-radius": 5, "circle-color": "red" }, filter: ["in", "$type", "Point"] },
+            { id: "measurement-lines", type: "line", source: "measurement", paint: { "line-width": 2, "line-color": "red" }, filter: ["in", "$type", "LineString"] }
+        ]
+    },
     topology: {
         version: 8,
         sources: {
@@ -113,12 +141,12 @@ if (config.maptiler) {
         source: "maptiler",
         exaggeration: 1.5
     };
-    mapStyles.standard.sources.openmaptiles = {
+    mapStyles.buildings.sources.openmaptiles = {
         type: "vector",
         url: `https://api.maptiler.com/tiles/v3/tiles.json?key=${config.maptiler}`,
         tileSize: 512
     };
-    mapStyles.standard.layers.push({
+    mapStyles.buildings.layers.push({
         id: "3d-buildings",
         source: "openmaptiles",
         "source-layer": "building",
@@ -780,6 +808,9 @@ function createLinkTool() {
     });
     map.on("mousemove", e => {
         if (getMode() === "measure") {
+            return;
+        }
+        if (!map.getSource("rf")) {
             return;
         }
         const features = map.queryRenderedFeatures([
