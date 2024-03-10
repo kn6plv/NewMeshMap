@@ -640,7 +640,7 @@ ${!isNaN(rf.elevation) ? "<tr><td>Elevation</td><td>" + rf.elevation + "&deg;</t
 ${rf.status === 'on' ?
     "<tr><td>SSID</td><td>" + rf.ssid + "</td></tr>" +
     "<tr><td>Channel</td><td>" + rf.channel + "</td></tr>" +
-    (rf.freq ? "<tr><td>Frequency</td><td>" + getFreqRange(rf.freq, rf.chanbw) + "</td></tr>" : "") +
+    (!isNaN(rf.freq) ? "<tr><td>Frequency</td><td>" + getFreqRange(rf.freq, rf.chanbw) + "</td></tr>" : "") +
     "<tr><td>Bandwidth</td><td>" + rf.chanbw + " MHz</td></tr>" +
     "<tr><td>MAC</td><td>" + d.interfaces[0].mac + "</td></tr>" : ""
 }
