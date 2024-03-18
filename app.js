@@ -881,7 +881,7 @@ function createIdle() {
     let idle = null;
     const patrol = {
         next: 0,
-        steps: config.patrol || [ "standard", `${config.lat}/${config.lon}/${config.zoom}`, config.idle ],
+        steps: config.patrol || [ "standard", `${config.lat}/${config.lon}/${config.zoom}`, `wait ${config.idle}` ],
         moving: false
     };
     function patrolStep() {
