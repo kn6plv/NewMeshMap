@@ -411,7 +411,7 @@ function selectMap(v) {
     const style = mapStyles[v];
     if (style && v !== currentStyle) {
         currentStyle = v;
-        map.setStyle(style, { diff: true });
+        map.setStyle(style, { diff: false });
     }
 }
 
