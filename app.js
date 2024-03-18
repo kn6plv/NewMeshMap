@@ -890,7 +890,8 @@ function createIdle() {
     function rot(timestamp) {
         if (patrol.rotating) {
             if (patrol.lastTimestamp !== null && timestamp !== null) {
-                map.rotateTo((map.getBearing() + (timestamp - patrol.lastTimestamp) / 100) % 360, { duration: 0 });
+                const time = timestamp - patrol.lastTimestamp;
+                map.rotateTo((map.getBearing() + time / 100) % 360, { duration: time / 1000 });
             }
             patrol.lastTimestamp = timestamp;
             requestAnimationFrame(rot);
