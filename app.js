@@ -917,6 +917,14 @@ function createIdle() {
                 rot();
                 break;
             }
+            else if (step.indexOf("open") === 0) {
+                const chostname = step.substring(4).trim().toUpperCase();
+                const marker = markers[chostname];
+                if (marker && marker._map) {
+                    openPopup();
+                    marker.togglePopup();
+                }
+            }
             else if (mapStyles[step]) {
                 selectMap(step);
                 document.querySelector("#ctrl select").value = step;
@@ -927,6 +935,7 @@ function createIdle() {
                     loc.push(0, 0);
                 }
                 if (loc.length == 5) {
+                    openPopup();
                     patrol.moving = false;
                     map.flyTo({ center: [ parseFloat(loc[2]), parseFloat(loc[1]) ], speed: 1, zoom: parseFloat(loc[0]), pitch: parseFloat(loc[4]), bearing: parseFloat(loc[3]) });
                     map.once("moveend", () => {
