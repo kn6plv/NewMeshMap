@@ -882,13 +882,14 @@ function createIdle() {
     const patrol = {
         next: 0,
         steps: config.patrol || [ "standard", `${config.lat}/${config.lon}/${config.zoom}`, config.idle ],
-        rotating: false
+        moving: false
     };
     function patrolStep() {
         idle = null;
         for (;;) {
             const step = patrol.steps[patrol.next];
             patrol.next = (patrol.next + 1) % patrol.steps.length;
+            patrol.moving = false;
             if (step.indexOf("wait") === 0) {
                 const wait = parseFloat(step.substring(4)) || 30;
                 idle = setTimeout(patrolStep, wait * 1000);
@@ -898,7 +899,7 @@ function createIdle() {
                 let rotTime = parseFloat(step.substring(6)) || 30;
                 const halfRotTime = 30;
                 function rot() {
-                    patrol.rotating = false;
+                    patrol.moving = false;
                     if (idle) {
                         return;
                     }
@@ -907,7 +908,7 @@ function createIdle() {
                         rotTime -= time;
                         map.rotateTo((map.getBearing() + 179.9 / halfRotTime * time) % 360, { duration: time * 1000, easing: t => t });
                         map.once("moveend", rot);
-                        patrol.rotating = true;
+                        patrol.moving = true;
                     }
                     else {
                         patrolStep();
@@ -926,9 +927,14 @@ function createIdle() {
                     loc.push(0, 0);
                 }
                 if (loc.length == 5) {
-                    patrol.rotating = false;
+                    patrol.moving = false;
                     map.flyTo({ center: [ parseFloat(loc[2]), parseFloat(loc[1]) ], speed: 1, zoom: parseFloat(loc[0]), pitch: parseFloat(loc[4]), bearing: parseFloat(loc[3]) });
-                    map.once("moveend", patrolStep);
+                    map.once("moveend", () => {
+                        if (!idle) {
+                            patrolStep();
+                        }
+                    });
+                    patrol.moving = true;
                     break;
                 }
             }
@@ -941,8 +947,8 @@ function createIdle() {
             openPopup();
             patrolStep();
         }, config.idle * 1000);
-        if (patrol.rotating) {
-            patrol.rotating = false;
+        if (patrol.moving) {
+            patrol.moving = false;
             map.rotateTo(map.getBearing(), { duration: 0 });
         }
     }
