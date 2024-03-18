@@ -881,35 +881,40 @@ function createIdle() {
     let idle = null;
     const patrol = {
         next: 0,
-        steps: config.patrol || [ config.idle, "standard", `${config.lat}/${config.lon}/${config.zoom}` ],
-        wait: config.idle,
-        rotate: false,
-        rotating: false,
-        lastTimestamp: null
+        steps: config.patrol || [ "standard", `${config.lat}/${config.lon}/${config.zoom}`, config.idle ],
+        rotating: false
     };
-    function rot(timestamp) {
-        if (patrol.rotating) {
-            if (patrol.lastTimestamp !== null && timestamp !== null) {
-                const time = timestamp - patrol.lastTimestamp;
-                map.rotateTo((map.getBearing() + time / 100) % 360, { duration: time / 1000 });
-            }
-            patrol.lastTimestamp = timestamp;
-            requestAnimationFrame(rot);
-        }
-    }
     function patrolStep() {
+        idle = null;
         for (;;) {
             const step = patrol.steps[patrol.next];
             patrol.next = (patrol.next + 1) % patrol.steps.length;
-            if (typeof step == "number") {
-                patrol.wait = step;
+            if (step.indexOf("wait") === 0) {
+                const wait = parseFloat(step.substring(4)) || 30;
+                idle = setTimeout(patrolStep, wait * 1000);
+                break;
             }
-            else if (step === "rotate") {
-                patrol.rotate = true;
-            }
-            else if (step === "norotate") {
-                patrol.rotate = false;
-                patrol.rotating = false;
+            else if (step.indexOf("rotate") === 0) {
+                let rotTime = parseFloat(step.substring(6)) || 30;
+                const halfRotTime = 30;
+                function rot() {
+                    patrol.rotating = false;
+                    if (idle) {
+                        return;
+                    }
+                    else if (rotTime > 0) {
+                        const time = Math.min(rotTime, halfRotTime);
+                        rotTime -= time;
+                        map.rotateTo((map.getBearing() + 179.9 / halfRotTime * time) % 360, { duration: time * 1000, easing: t => t });
+                        map.once("moveend", rot);
+                        patrol.rotating = true;
+                    }
+                    else {
+                        patrolStep();
+                    }
+                }
+                rot();
+                break;
             }
             else if (mapStyles[step]) {
                 selectMap(step);
@@ -923,21 +928,18 @@ function createIdle() {
                 if (loc.length == 5) {
                     patrol.rotating = false;
                     map.flyTo({ center: [ parseFloat(loc[2]), parseFloat(loc[1]) ], speed: 1, zoom: parseFloat(loc[0]), pitch: parseFloat(loc[4]), bearing: parseFloat(loc[3]) });
-                    if (patrol.rotate) {
-                        map.once("moveend", () => {
-                            patrol.rotating = true;
-                            rot(null);
-                        });
-                    }
+                    map.once("moveend", patrolStep);
+                    break;
                 }
-                break;
             }
         }
-        idle = setTimeout(patrolStep, patrol.wait * 1000);
     }
     function notIdle() {
         patrol.next = 0;
-        patrol.rotating = false;
+        if (patrol.rotating) {
+            patrol.rotating = false;
+            map.rotateTo(map.getBearing(), { duration: 0 });
+        }
         clearTimeout(idle);
         idle = setTimeout(function() {
             openPopup();

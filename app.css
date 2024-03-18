@@ -212,6 +212,7 @@ body
     display: inline-block;
 }
 #ff input {
+    width: 250px;
     margin-left: 2px;
     font: inherit;
     border: 1px solid grey;
