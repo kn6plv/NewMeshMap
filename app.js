@@ -936,15 +936,15 @@ function createIdle() {
     }
     function notIdle() {
         patrol.next = 0;
-        if (patrol.rotating) {
-            patrol.rotating = false;
-            map.rotateTo(map.getBearing(), { duration: 0 });
-        }
         clearTimeout(idle);
         idle = setTimeout(function() {
             openPopup();
             patrolStep();
         }, config.idle * 1000);
+        if (patrol.rotating) {
+            patrol.rotating = false;
+            map.rotateTo(map.getBearing(), { duration: 0 });
+        }
     }
     [ "mousemove", "mousedown", "touchstart", "click", "keypress", "scroll" ].forEach(function(name) {
         document.addEventListener(name, notIdle);
