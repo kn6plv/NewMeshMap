@@ -123,6 +123,15 @@ const mapStyles = {
     }
 };
 if (config.maptiler) {
+    mapStyles.standard.sources.maptiler = {
+        type: "raster-dem",
+        url: `https://api.maptiler.com/tiles/terrain-rgb/tiles.json?key=${config.maptiler}`,
+        tileSize: 512
+    };
+    mapStyles.standard.terrain = {
+        source: "maptiler",
+        exaggeration: 0
+    };
     mapStyles.topology.sources.maptiler = {
         type: "raster-dem",
         url: `https://api.maptiler.com/tiles/terrain-rgb/tiles.json?key=${config.maptiler}`,
@@ -402,7 +411,7 @@ function selectMap(v) {
     const style = mapStyles[v];
     if (style && v !== currentStyle) {
         currentStyle = v;
-        map.setStyle(style, { diff: false });
+        map.setStyle(style, { diff: true });
     }
 }
 
@@ -870,18 +879,74 @@ function findNode(name) {
 
 function createIdle() {
     let idle = null;
+    const patrol = {
+        next: 0,
+        steps: config.patrol || [ config.idle, "standard", `${config.lat}/${config.lon}/${config.zoom}` ],
+        wait: config.idle,
+        rotate: false,
+        rotating: false,
+        lastTimestamp: null
+    };
+    function rot(timestamp) {
+        if (patrol.rotating) {
+            if (patrol.lastTimestamp !== null && timestamp !== null) {
+                map.rotateTo((map.getBearing() + (timestamp - patrol.lastTimestamp) / 100) % 360, { duration: 0 });
+            }
+            patrol.lastTimestamp = timestamp;
+            requestAnimationFrame(rot);
+        }
+    }
+    function patrolStep() {
+        for (;;) {
+            const step = patrol.steps[patrol.next];
+            patrol.next = (patrol.next + 1) % patrol.steps.length;
+            if (typeof step == "number") {
+                patrol.wait = step;
+            }
+            else if (step === "rotate") {
+                patrol.rotate = true;
+            }
+            else if (step === "norotate") {
+                patrol.rotate = false;
+                patrol.rotating = false;
+            }
+            else if (mapStyles[step]) {
+                selectMap(step);
+                document.querySelector("#ctrl select").value = step;
+            }
+            else {
+                const loc = step.split("/");
+                if (loc.length === 3) {
+                    loc.push(0, 0);
+                }
+                if (loc.length == 5) {
+                    patrol.rotating = false;
+                    map.flyTo({ center: [ parseFloat(loc[2]), parseFloat(loc[1]) ], speed: 1, zoom: parseFloat(loc[0]), pitch: parseFloat(loc[4]), bearing: parseFloat(loc[3]) });
+                    if (patrol.rotate) {
+                        map.once("moveend", () => {
+                            patrol.rotating = true;
+                            rot(null);
+                        });
+                    }
+                }
+                break;
+            }
+        }
+        idle = setTimeout(patrolStep, patrol.wait * 1000);
+    }
     function notIdle() {
+        patrol.next = 0;
+        patrol.rotating = false;
         clearTimeout(idle);
         idle = setTimeout(function() {
-            selectMap("standard");
-            document.querySelector("#ctrl select").value = "standard";
             openPopup();
-            map.flyTo({ center: [ config.lon, config.lat ], speed: 1, zoom: config.zoom, pitch: 0, bearing: 0 });
+            patrolStep();
         }, config.idle * 1000);
     }
     [ "mousemove", "mousedown", "touchstart", "click", "keypress", "scroll" ].forEach(function(name) {
         document.addEventListener(name, notIdle);
     });
+    notIdle();
 }
 
 function start() {
