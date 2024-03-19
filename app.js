@@ -392,8 +392,7 @@ function loadMap() {
         style: mapStyles.standard,
         center: [ config.lon, config.lat ],
         zoom: config.zoom,
-        hash: true,
-        maxPitch: 68
+        hash: true
     });
     map.addControl(new maplibregl.NavigationControl({
         visualizePitch: true
@@ -942,7 +941,7 @@ function createIdle() {
                 if (loc.length == 5) {
                     openPopup();
                     patrol.moving = false;
-                    map.flyTo({ center: [ parseFloat(loc[2]), parseFloat(loc[1]) ], speed: 1, zoom: parseFloat(loc[0]), pitch: parseFloat(loc[4]), bearing: parseFloat(loc[3]) });
+                    map.flyTo({ center: [ parseFloat(loc[2]), parseFloat(loc[1]) ], speed: 1, zoom: parseFloat(loc[0]), pitch: parseFloat(loc[4]), bearing: parseFloat(loc[3]), padding: { top: 400, right: 400, bottom: 0, left: 0 } });
                     map.once("moveend", () => {
                         if (!idle) {
                             patrolStep();
