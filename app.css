@@ -3,6 +3,7 @@ body
     font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
     margin: 0;
     padding: 0;
+    background-color: black;
 }
 
 .description .maplibregl-popup-content
