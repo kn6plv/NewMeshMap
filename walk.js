@@ -89,7 +89,7 @@ function walk(update) {
     let running = 0;
     let count = 0;
     function run() {
-        while (running < pending.length && running < 8) {
+        while (running < pending.length && running < 32) {
             running++;
             walkOne().then(() => {
                 running--;
