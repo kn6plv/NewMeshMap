@@ -434,12 +434,17 @@ function downloadData(v) {
 }
 
 function filterKey(color) {
-    color = radioColors[color];
-    if (color === filterKeyColor) {
+    if (!color) {
         filterKeyColor = null;
     }
     else {
-        filterKeyColor = color;
+        color = radioColors[color];
+        if (color === filterKeyColor) {
+            filterKeyColor = null;
+        }
+        else {
+            filterKeyColor = color;
+        }
     }
     updateLinks();
     updateKey();
@@ -954,6 +959,8 @@ function createIdle() {
         clearTimeout(idle);
         idle = setTimeout(function() {
             openPopup();
+            filterKey();
+            setMode("normal");
             patrolStep();
         }, config.idle * 1000);
         if (patrol.moving) {
