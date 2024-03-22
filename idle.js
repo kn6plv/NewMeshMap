@@ -79,6 +79,7 @@ function idle() {
             patrol.idling = false;
             openPopup();
             selectMap("standard");
+            document.querySelector("#ctrl select").value = "standard";
             map.flyTo({ center: [ config.lon, config.lat ], speed: 1, zoom: config.zoom, pitch: 0, bearing: 0 });
         }
     }
