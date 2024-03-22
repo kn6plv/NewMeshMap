@@ -36,6 +36,11 @@ body
     border-radius: 16px;
     z-index: 2;
 }
+@media (pointer:coarse) {
+    #ctrl {
+        font-size: 18px;
+    }
+}
 #ctrl select
 {
     outline: none;
