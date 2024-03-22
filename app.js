@@ -314,7 +314,7 @@ function openPopup(chostname, zoom) {
     }
     const marker = markers[chostname];
     if (marker && marker._map) {
-        const options = { center: marker.getLngLat(), speed: 1, padding: { top: 400, right: 400, bottom: 0, left: 0 } };
+        const options = { center: marker.getLngLat(), speed: 1 };
         if (zoom !== undefined) {
             options.zoom = zoom;
         }
@@ -465,12 +465,12 @@ function updateKey() {
 <div class="title">${config.title}</div>
 <table>
 <tr><td>Band</td><td>Nodes</td></tr>
-${rf9 ? "<tr class='" + sel("9") + "'><td><div class='mark' style='background-color: " + radioColors["9"] + "'></div> <a href='#' onclick='filterKey(\"9\")'>900 MHz</a></td><td>" + rf9 + "</td></tr>" : ""}
-${rf2 ? "<tr class='" + sel("2") + "'><td><div class='mark' style='background-color: " + radioColors["2"] + "'></div> <a href='#' onclick='filterKey(\"2\")'>2.4 GHz</a></td><td>" + rf2 + "</td></tr>" : ""}
-${rf3 ? "<tr class='" + sel("3") + "'><td><div class='mark' style='background-color: " + radioColors["3"] + "'></div> <a href='#' onclick='filterKey(\"3\")'>3.4 GHz</a></td><td>" + rf3 + "</td></tr>" : ""}
-${rf5 ? "<tr class='" + sel("5") + "'><td><div class='mark' style='background-color: " + radioColors["5"] + "'></div> <a href='#' onclick='filterKey(\"5\")'>5 GHz</a></td><td>" + rf5 + "</td></tr>" : ""}
-${sn  ? "<tr class='" + sel("s") + "'><td><div class='mark' style='background-color: " + radioColors["s"] + "'></div> <a href='#' onclick='filterKey(\"s\")'>Supernode</a></td><td>" + sn + "</td></tr>" : ""}
-${nrf ? "<tr class='" + sel("n") + "'><td><div class='mark' style='background-color: " + radioColors["n"] + "'></div> <a href='#' onclick='filterKey(\"n\")'>No RF</a></td><td>" + nrf + "</td></tr>" : ""}
+${rf9 ? "<tr class='" + sel("9") + "'><td><a onclick='filterKey(\"9\")'><div class='mark' style='background-color: " + radioColors["9"] + "'></div> 900 MHz</a></td><td>" + rf9 + "</td></tr>" : ""}
+${rf2 ? "<tr class='" + sel("2") + "'><td><a onclick='filterKey(\"2\")'><div class='mark' style='background-color: " + radioColors["2"] + "'></div> 2.4 GHz</a></td><td>" + rf2 + "</td></tr>" : ""}
+${rf3 ? "<tr class='" + sel("3") + "'><td><a onclick='filterKey(\"3\")'><div class='mark' style='background-color: " + radioColors["3"] + "'></div> 3.4 GHz</a></td><td>" + rf3 + "</td></tr>" : ""}
+${rf5 ? "<tr class='" + sel("5") + "'><td><a onclick='filterKey(\"5\")'><div class='mark' style='background-color: " + radioColors["5"] + "'></div> 5 GHz</a></td><td>" + rf5 + "</td></tr>" : ""}
+${sn  ? "<tr class='" + sel("s") + "'><td><a onclick='filterKey(\"s\")'><div class='mark' style='background-color: " + radioColors["s"] + "'></div> Supernode</a></td><td>" + sn + "</td></tr>" : ""}
+${nrf ? "<tr class='" + sel("n") + "'><td><a onclick='filterKey(\"n\")'><div class='mark' style='background-color: " + radioColors["n"] + "'></div> No RF</a></td><td>" + nrf + "</td></tr>" : ""}
 <tr><td>Total</td><td>${out.nodeInfo.length}</td></tr>
 </table>
 <div class="footer">
@@ -602,7 +602,7 @@ function makePopup(d) {
                     if (isNaN(sigt)) {
                         sigt = '-';
                     }
-                    return `<div><a href="#" onclick="openPopup('${chostname}')">${chostname}</a> <span>${l.linkType}</span></div><div class="bearing">${sigf} dB \u2190 ${bd.bearing}\u00B0 ${bd.distance} miles \u2192 ${sigt} dB</div>`;
+                    return `<div><a onclick="openPopup('${chostname}')">${chostname}</a> <span>${l.linkType}</span></div><div class="bearing">${sigf} dB \u2190 ${bd.bearing}\u00B0 ${bd.distance} miles \u2192 ${sigt} dB</div>`;
                 }
                 return `<div>${chostname} <span>RF</span></div>`;
             }
@@ -610,7 +610,7 @@ function makePopup(d) {
             {
                 if (dloc.lat && dloc.lon && hloc.lat && hloc.lon) {
                     const bd = bearingAndDistance([ dloc.lat, dloc.lon ], [ hloc.lat, hloc.lon ]);
-                    return `<div><a href="#" onclick="openPopup('${chostname}')">${chostname}</a> <span>XLINK</span></div><div class="bearing">${bd.bearing}\u00B0 ${bd.distance} miles</div>`;
+                    return `<div><a onclick="openPopup('${chostname}')">${chostname}</a> <span>XLINK</span></div><div class="bearing">${bd.bearing}\u00B0 ${bd.distance} miles</div>`;
                 }
                 return `<div>${chostname} <span>XLINK</span>`;
             }
@@ -618,14 +618,14 @@ function makePopup(d) {
             case "WIREGUARD":
             {
                 if (dloc.lat && dloc.lon && hloc.lat && hloc.lon) {
-                    return `<div><a href="#" onclick="openPopup('${chostname}')">${chostname}</a> <span>${l.linkType}</span></div>`;
+                    return `<div><a onclick="openPopup('${chostname}')">${chostname}</a> <span>${l.linkType}</span></div>`;
                 }
                 return `<div>${chostname} <span>${l.linkType}</span>`;
             }
             case "DTD":
             case "SUPER":
                 if (dloc.lat && dloc.lon && hloc.lat && hloc.lon) {
-                    return `<div><a href="#" onclick="openPopup('${chostname}')">${chostname}</a> <span>${l.linkType}</span></div>`;
+                    return `<div><a onclick="openPopup('${chostname}')">${chostname}</a> <span>${l.linkType}</span></div>`;
                 }
                 return `<div>${chostname} <span>${l.linkType}</span></div>`;
             default:
@@ -819,7 +819,7 @@ function createLinkTool() {
                 maxWidth: "500px",
                 focusAfterOpen: false,
                 anchor: "bottom",
-            }).setHTML(`<a href="#" onclick="openPopup('${p.from}')">${p.from}</a> &harr; <a href="#" onclick="openPopup('${p.to}')">${p.to}</a>${details}`);
+            }).setHTML(`<a onclick="openPopup('${p.from}')">${p.from}</a> &harr; <a onclick="openPopup('${p.to}')">${p.to}</a>${details}`);
             linkPopup.setLngLat(e.lngLat);
             linkPopup.addTo(map);
         }
