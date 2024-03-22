@@ -670,8 +670,8 @@ ${rf.status === 'on' ?
         closeButton: false,
         maxWidth: "500px",
         focusAfterOpen: false,
-        anchor: "bottom-left",
-        offset: [ 0, -16 ]
+        anchor: "left",
+        offset: [ 8, -4 ]
     }).setHTML(lines);
 }
 
