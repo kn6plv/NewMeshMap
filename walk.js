@@ -32,8 +32,8 @@ async function walkOne() {
                     for (k in node.link_info) {
                         const l = node.link_info[k];
                         link_info[k] = {
-                            hostname: l.hostname,
-                            linkType: l.linkType,
+                            hostname: l.hostname.replace(/^xlink\d+\./i, ""),
+                            linkType: l.linkType === "" && l.hostname.indexOf("xlink") === 0 ? "XLINK" : l.linkType,
                             signal: l.signal,
                             noise: l.noise
                         }
