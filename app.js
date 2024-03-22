@@ -395,7 +395,7 @@ function loadMap() {
         hash: true,
         boxZoom: false,
         maxTileCacheZoomLevels: 1024 * 1024,
-        maxTileCacheZoomLevels: 1,
+        maxTileCacheZoomLevels: 8,
         refreshExpiredTiles: false,
     });
     map.addControl(new maplibregl.NavigationControl({

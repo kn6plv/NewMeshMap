@@ -54,7 +54,7 @@ function idle() {
                 }
                 if (loc.length == 5) {
                     openPopup();
-                    map.flyTo({ center: [ parseFloat(loc[2]), parseFloat(loc[1]) ], speed: 1, zoom: parseFloat(loc[0]), pitch: parseFloat(loc[4]), bearing: parseFloat(loc[3]), padding: { top: 400, right: 400, bottom: 0, left: 0 } });
+                    map.flyTo({ center: [ parseFloat(loc[2]), parseFloat(loc[1]) ], speed: 1, zoom: parseFloat(loc[0]), pitch: parseFloat(loc[4]), bearing: parseFloat(loc[3]) });
                     map.once("moveend", () => {
                         if (!idle) {
                             patrolStep();
