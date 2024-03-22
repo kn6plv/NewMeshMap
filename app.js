@@ -415,6 +415,7 @@ function selectMap(v) {
     if (style && v !== currentStyle) {
         currentStyle = v;
         map.setStyle(style, { diff: false });
+        document.querySelector("#ctrl select").value = v;
     }
 }
 
