@@ -11,7 +11,13 @@ const config = {
         opentopomap: { ... },
         landsat: { ... }
     },
-    patrol: [
-        delay | map | zoom/lat/lon[/pitch/bearing], ...
+    tour: [
+        "<zoom/lat/lon[/pitch/bearing]>",
+        "rotate <seconds>",
+        "wait <seconds>",
+        "<map>",
+        "open <node name>",
+        "random",
+        ....
     ]
 }

@@ -1,18 +1,18 @@
 function idle() {
     let idle = null;
-    const patrol = {
+    const tour = {
         idling: false,
         next: 0,
-        steps: config.patrol || [ "standard", `${config.zoom}/${config.lat}/${config.lon}`, `wait ${config.idle}` ]
+        steps: config.tour || [ "standard", `${config.zoom}/${config.lat}/${config.lon}`, `wait ${config.idle}` ]
     };
-    function patrolStep() {
+    function tourStep() {
         idle = null;
         for (;;) {
-            const step = patrol.steps[patrol.next];
-            patrol.next = (patrol.next + 1) % patrol.steps.length;
+            const step = tour.steps[tour.next];
+            tour.next = (tour.next + 1) % tour.steps.length;
             if (step.indexOf("wait") === 0) {
                 const wait = parseFloat(step.substring(4)) || 30;
-                idle = setTimeout(patrolStep, wait * 1000);
+                idle = setTimeout(tourStep, wait * 1000);
                 break;
             }
             else if (step.indexOf("rotate") === 0) {
@@ -29,7 +29,7 @@ function idle() {
                         map.once("moveend", rot);
                     }
                     else {
-                        patrolStep();
+                        tourStep();
                     }
                 }
                 rot();
@@ -42,6 +42,22 @@ function idle() {
                     openPopup();
                     marker.togglePopup();
                 }
+            }
+            else if (step === "random") {
+                const nodes = Object.values(markers);
+                const marker = nodes[Math.min(nodes.length - 1, Math.floor(Math.random() * nodes.length))];
+                if (marker._map) {
+                    openPopup();
+                    marker.togglePopup();
+                }
+                map.flyTo({ center: marker.getLngLat(), speed: 1, zoom: 15, pitch: 60, bearing: 0 });
+                map.once("moveend", () => {
+                    if (!idle) {
+                        tourStep();
+                    }
+                });
+                break;
+
             }
             else if (mapStyles[step]) {
                 selectMap(step);
@@ -56,7 +72,7 @@ function idle() {
                     map.flyTo({ center: [ parseFloat(loc[2]), parseFloat(loc[1]) ], speed: 1, zoom: parseFloat(loc[0]), pitch: parseFloat(loc[4]), bearing: parseFloat(loc[3]) });
                     map.once("moveend", () => {
                         if (!idle) {
-                            patrolStep();
+                            tourStep();
                         }
                     });
                     break;
@@ -65,17 +81,17 @@ function idle() {
         }
     }
     function notIdle() {
-        patrol.next = 0;
+        tour.next = 0;
         clearTimeout(idle);
         idle = setTimeout(function() {
-            patrol.idling = true;
+            tour.idling = true;
             openPopup();
             filterKey();
             setMode("normal");
-            patrolStep();
+            tourStep();
         }, config.idle * 1000);
-        if (patrol.idling) {
-            patrol.idling = false;
+        if (tour.idling) {
+            tour.idling = false;
             openPopup();
             selectMap("standard");
             map.flyTo({ center: [ config.lon, config.lat ], speed: 1, zoom: config.zoom, pitch: 0, bearing: 0 });
