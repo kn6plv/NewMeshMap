@@ -13,6 +13,7 @@ const config = {
     },
     tour: [
         "<zoom/lat/lon[/pitch/bearing]>",
+        "<node name>",
         "rotate <seconds>",
         "wait <seconds>",
         "<map>",

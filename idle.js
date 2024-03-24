@@ -59,6 +59,20 @@ function idle() {
                 break;
 
             }
+            else if (markers[step]) {
+                const marker = markers[step];
+                if (marker._map) {
+                    openPopup();
+                    marker.togglePopup();
+                }
+                map.flyTo({ center: marker.getLngLat(), speed: 1, zoom: 15, pitch: 60, bearing: 0 });
+                map.once("moveend", () => {
+                    if (!idle) {
+                        tourStep();
+                    }
+                });
+                break;
+            }
             else if (mapStyles[step]) {
                 selectMap(step);
             }
