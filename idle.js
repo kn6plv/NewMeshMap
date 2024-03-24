@@ -59,8 +59,8 @@ function idle() {
                 break;
 
             }
-            else if (markers[step]) {
-                const marker = markers[step];
+            else if (markers[step.toUpperCase()]) {
+                const marker = markers[step.toUpperCase()];
                 if (marker._map) {
                     openPopup();
                     marker.togglePopup();
