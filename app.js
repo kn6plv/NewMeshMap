@@ -773,10 +773,10 @@ function createLinkTool() {
                             case "RF":
                                 if (floc.lat && floc.lon && tloc.lat && tloc.lon) {
                                     const bd = bearingAndDistance([ floc.lat, floc.lon ], [ tloc.lat, tloc.lon ]);
-                                    details = "<div>wireless link, " + bd.distance + " miles</div>";
+                                    details = `<div>wireless link, channel ${from.data.meshrf.channel}, ${bd.distance} miles</div>`;
                                 }
                                 else {
-                                    details = "<div>wireless link</div>";
+                                    details = `<div>wireless link, channel ${from.data.meshrf.channel}</div>`;
                                 }
                                 break;
                             case "XLINK":
