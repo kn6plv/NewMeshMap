@@ -114,5 +114,6 @@ function idle() {
     [ "mousemove", "mousedown", "touchstart", "click", "keypress", "scroll" ].forEach(function(name) {
         document.addEventListener(name, notIdle);
     });
+    screen.orientation.addEventListener("change", notIdle);
     notIdle();
 }
