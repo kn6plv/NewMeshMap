@@ -319,7 +319,9 @@ function openPopup(chostname, zoom) {
             options.zoom = zoom;
         }
         map.flyTo(options);
-        marker.togglePopup();
+        map.once("moveend", () => {
+            marker.togglePopup();
+        });
     }
 }
 
