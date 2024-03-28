@@ -46,13 +46,13 @@ function idle() {
             else if (step === "random") {
                 const nodes = Object.values(markers);
                 const marker = nodes[Math.min(nodes.length - 1, Math.floor(Math.random() * nodes.length))];
-                if (marker._map) {
-                    openPopup();
-                    marker.togglePopup();
-                }
+                openPopup();
                 map.flyTo({ center: marker.getLngLat(), speed: 1, zoom: 15, pitch: 60, bearing: 0 });
                 map.once("moveend", () => {
                     if (!idle) {
+                        if (marker._map) {
+                            marker.togglePopup();
+                        }
                         tourStep();
                     }
                 });
