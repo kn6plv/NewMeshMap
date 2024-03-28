@@ -61,13 +61,13 @@ function idle() {
             }
             else if (markers[step.toUpperCase()]) {
                 const marker = markers[step.toUpperCase()];
-                if (marker._map) {
-                    openPopup();
-                    marker.togglePopup();
-                }
+                openPopup();
                 map.flyTo({ center: marker.getLngLat(), speed: 1, zoom: 15, pitch: 60, bearing: 0 });
                 map.once("moveend", () => {
                     if (!idle) {
+                        if (marker._map) {
+                            marker.togglePopup();
+                        }
                         tourStep();
                     }
                 });
