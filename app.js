@@ -773,24 +773,28 @@ function createLinkTool() {
                     if (pto === canonicalHostname(l.hostname)) {
                         let to = nodes[pto];
                         let tloc = getVirtualLatLon(to && to.data);
+                        const fname = canonicalHostname(from.data.node);
+                        let hl = Object.values(to.data.link_info).find(info => canonicalHostname(info.hostname) === fname);
+                        if (floc.lon > tloc.lon) {
+                            const _pfrom = pfrom;
+                            const _from = from;
+                            const _floc = floc;
+                            const _l = l;
+                            pfrom = pto;
+                            from = to;
+                            floc = tloc;
+                            l = hl;
+                            pto = _pfrom;
+                            to = _from;
+                            tloc = _floc;
+                            hl = _l;
+                        }
+                        let bd = null;
+                        if (floc.lat && floc.lon && tloc.lat && tloc.lon) {
+                            bd = bearingAndDistance([ floc.lat, floc.lon ], [ tloc.lat, tloc.lon ]);
+                        }
                         switch (l.linkType || "X") {
                             case "RF":
-                                const fname = canonicalHostname(from.data.node);
-                                let hl = Object.values(to.data.link_info).find(info => canonicalHostname(info.hostname) === fname);
-                                if (floc.lon > tloc.lon) {
-                                    const _pfrom = pfrom;
-                                    const _from = from;
-                                    const _floc = floc;
-                                    const _l = l;
-                                    pfrom = pto;
-                                    from = to;
-                                    floc = tloc;
-                                    l = hl;
-                                    pto = _pfrom;
-                                    to = _from;
-                                    tloc = _floc;
-                                    hl = _l;
-                                }
                                 let sigf = l ? l.signal - l.noise : '-';
                                 if (isNaN(sigf)) {
                                     sigf = '-';
@@ -799,8 +803,7 @@ function createLinkTool() {
                                 if (isNaN(sigt)) {
                                     sigt = '-';
                                 }
-                                if (floc.lat && floc.lon && tloc.lat && tloc.lon) {
-                                    const bd = bearingAndDistance([ floc.lat, floc.lon ], [ tloc.lat, tloc.lon ]);
+                                if (bd) {
                                     details = `<div>wireless link, channel ${from.data.meshrf.channel}, SNR ${sigf}/${sigt}, ${bd.distance} miles</div>`;
                                 }
                                 else {
@@ -808,8 +811,7 @@ function createLinkTool() {
                                 }
                                 break;
                             case "XLINK":
-                                if (floc.lat && floc.lon && tloc.lat && tloc.lon) {
-                                    const bd = bearingAndDistance([ floc.lat, floc.lon ], [ tloc.lat, tloc.lon ]);
+                                if (bd) {
                                     details = "<div>xlink, " + bd.distance + " miles</div>";
                                 }
                                 else {
@@ -826,8 +828,7 @@ function createLinkTool() {
                                 details = "<div>supernode interconnect</div>";
                                 break;
                             case "DTD":
-                                if (floc.lat && floc.lon && tloc.lat && tloc.lon) {
-                                    const bd = bearingAndDistance([ floc.lat, floc.lon ], [ tloc.lat, tloc.lon ]);
+                                if (bd) {
                                     details = "<div>long distance device to device link, " + bd.distance + " miles</div>";
                                 }
                                 else {
