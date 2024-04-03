@@ -803,37 +803,22 @@ function createLinkTool() {
                                 if (isNaN(sigt)) {
                                     sigt = '-';
                                 }
-                                if (bd) {
-                                    details = `<div>wireless link, channel ${from.data.meshrf.channel}, SNR ${sigf}/${sigt}, ${bd.distance} miles</div>`;
-                                }
-                                else {
-                                    details = `<div>wireless link, channel ${from.data.meshrf.channel}, SNR ${sigf}/${sigt}</div>`;
-                                }
+                                details = `<div>wireless link, channel ${from.data.meshrf.channel}, SNR ${sigf}/${sigt}${bd ? ", " + bd.distance + " miles" : ""}</div>`;
                                 break;
                             case "XLINK":
-                                if (bd) {
-                                    details = "<div>xlink, " + bd.distance + " miles</div>";
-                                }
-                                else {
-                                    details = "<div>xlink</div>";
-                                }
+                                details = `<div>xlink${bd ? ", " + bd.distance + " miles" : ""}</div>`;
                                 break;
                             case "TUN":
-                                details = "<div>legacy tunnel</div>";
+                                details = `<div>legacy tunnel${bd ? ", " + bd.distance + " miles" : ""}</div>`;
                                 break;
                             case "WIREGUARD":
-                                details = "<div>wireguard tunnel</div>";
+                                details = `<div>wireguard tunnel${bd ? ", " + bd.distance + " miles" : ""}</div>`;
                                 break;
                             case "SUPER":
-                                details = "<div>supernode interconnect</div>";
+                                details = `<div>supernode interconnect${bd ? ", " + bd.distance + " miles" : ""}</div>`;
                                 break;
                             case "DTD":
-                                if (bd) {
-                                    details = "<div>long distance device to device link, " + bd.distance + " miles</div>";
-                                }
-                                else {
-                                    details = "<div>long distance device to device link</div>";
-                                }
+                                details = `<div>long distance device to device link${bd ? ", " + bd.distance + " miles" : ""}</div>`;
                                 break;
                             default:
                         }
