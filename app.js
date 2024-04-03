@@ -763,22 +763,49 @@ function createLinkTool() {
         if (features.length) {
             const p = features[0].properties;
             let details = "";
-            const from = nodes[p.from];
+            let pfrom = p.from;
+            let pto = p.to;
+            let from = nodes[pfrom];
             if (from) {
-                const floc = getVirtualLatLon(from && from.data);
+                let floc = getVirtualLatLon(from.data);
                 for (mac in from.data.link_info) {
-                    const l = from.data.link_info[mac];
-                    if (p.to === canonicalHostname(l.hostname)) {
-                        const to = nodes[p.to];
-                        const tloc = getVirtualLatLon(to && to.data);
+                    let l = from.data.link_info[mac];
+                    if (pto === canonicalHostname(l.hostname)) {
+                        let to = nodes[pto];
+                        let tloc = getVirtualLatLon(to && to.data);
                         switch (l.linkType || "X") {
                             case "RF":
+                                const fname = canonicalHostname(from.data.node);
+                                let hl = Object.values(to.data.link_info).find(info => canonicalHostname(info.hostname) === fname);
+                                if (floc.lon > tloc.lon) {
+                                    const _pfrom = pfrom;
+                                    const _from = from;
+                                    const _floc = floc;
+                                    const _l = l;
+                                    pfrom = pto;
+                                    from = to;
+                                    floc = tloc;
+                                    l = hl;
+                                    pto = _pfrom;
+                                    to = _from;
+                                    tloc = _floc;
+                                    hl = _l;
+                                }
+                                let sigf = l.signal - l.noise;
+                                if (isNaN(sigf)) {
+                                    sigf = '-';
+                                }
+                                
+                                let sigt = hl ? hl.signal - hl.noise : '-';
+                                if (isNaN(sigt)) {
+                                    sigt = '-';
+                                }
                                 if (floc.lat && floc.lon && tloc.lat && tloc.lon) {
                                     const bd = bearingAndDistance([ floc.lat, floc.lon ], [ tloc.lat, tloc.lon ]);
-                                    details = `<div>wireless link, channel ${from.data.meshrf.channel}, ${bd.distance} miles</div>`;
+                                    details = `<div>wireless link, channel ${from.data.meshrf.channel}, SNR ${sigf}/${sigt}, ${bd.distance} miles</div>`;
                                 }
                                 else {
-                                    details = `<div>wireless link, channel ${from.data.meshrf.channel}</div>`;
+                                    details = `<div>wireless link, channel ${from.data.meshrf.channel}, SNR ${sigf}/${sigt}</div>`;
                                 }
                                 break;
                             case "XLINK":
@@ -821,7 +848,7 @@ function createLinkTool() {
                 maxWidth: "500px",
                 focusAfterOpen: false,
                 anchor: "bottom",
-            }).setHTML(`<a onclick="openPopup('${p.from}')">${p.from}</a> &harr; <a onclick="openPopup('${p.to}')">${p.to}</a>${details}`);
+            }).setHTML(`<a onclick="openPopup('${pfrom}')">${pfrom}</a> &harr; <a onclick="openPopup('${pto}')">${pto}</a>${details}`);
             linkPopup.setLngLat(e.lngLat);
             linkPopup.addTo(map);
         }
