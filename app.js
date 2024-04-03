@@ -791,11 +791,10 @@ function createLinkTool() {
                                     tloc = _floc;
                                     hl = _l;
                                 }
-                                let sigf = l.signal - l.noise;
+                                let sigf = l ? l.signal - l.noise : '-';
                                 if (isNaN(sigf)) {
                                     sigf = '-';
                                 }
-                                
                                 let sigt = hl ? hl.signal - hl.noise : '-';
                                 if (isNaN(sigt)) {
                                     sigt = '-';
