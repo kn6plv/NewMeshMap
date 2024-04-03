@@ -144,6 +144,7 @@ body
 {
     color: #0078a8;
     text-decoration: none;
+    cursor: default;
 }
 .description td a:hover,
 .description a:hover
