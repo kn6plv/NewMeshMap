@@ -1,6 +1,8 @@
 
 let map = null;
 
+const simple = location.search.indexOf("simple=1") !== -1 ? true : false;
+
 const rf = { type: "FeatureCollection", features: [] };
 const tun = { type: "FeatureCollection", features: [] };
 const xlink = { type: "FeatureCollection", features: [] };
@@ -122,7 +124,7 @@ const mapStyles = {
         ]
     }
 };
-if (config.maptiler) {
+if (config.maptiler && !simple) {
     mapStyles.standard.sources.maptiler = {
         type: "raster-dem",
         url: `https://api.maptiler.com/tiles/terrain-rgb/tiles.json?key=${config.maptiler}`,
@@ -399,14 +401,17 @@ function loadMap() {
         maxTileCacheZoomLevels: 1024 * 1024,
         maxTileCacheZoomLevels: 8,
         refreshExpiredTiles: false,
+        attributionControl: simple ? false : { compact: true }
     });
-    map.addControl(new maplibregl.NavigationControl({
-        visualizePitch: true
-    }), "bottom-right");
-    map.addControl(new maplibregl.TerrainControl({
-        source: 'maptiler',
-        exaggeration: 1.5
-    }), "bottom-right");
+    if (!simple) {
+        map.addControl(new maplibregl.NavigationControl({
+            visualizePitch: true
+        }), "bottom-right");
+        map.addControl(new maplibregl.TerrainControl({
+            source: 'maptiler',
+            exaggeration: 1.5
+        }), "bottom-right");
+    }
     createMarkers();
     updateMarkers();
     document.querySelector("#ctrl select").innerHTML = Object.keys(mapStyles).map(style => `<option>${style}</option>`)
@@ -901,6 +906,10 @@ function findNode(name) {
 }
 
 function start() {
+    if (!simple) {
+        document.getElementById("key").style.display = null;
+        document.getElementById("ctrl").style.display = null;
+    }
     out.nodeInfo.forEach(node => {
         nodes[canonicalHostname(node.data.node)] = node;
     });

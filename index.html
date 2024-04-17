@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="app.css" type="text/css" />
 </head>
 <body class="normal">
-    <div id="ctrl">
+    <div id="ctrl" style="display:none">
         <select onchange="selectMap(event.target.value)">
             <option>standard</option>
         </select> map | 
@@ -23,7 +23,7 @@
             <option>json</option>
         </select> | </span><a href="compass">phone &#129517;</a> | <a onclick="toggleFind()">find</a><div id="ff">&nbsp;<input placeholder="node name or address" onchange="findNode(event.target.value)"/></div> | <a onclick="toggleMeasure()">measure</a><div id="mm">&nbsp;<div id="mb">---</div>&deg <div id="md">--.-</div> miles</div>
     </div>
-    <div id="key"></div>
+    <div id="key" style="display:none"></div>
     <div id="map"></div>
 </body>
 </html>
