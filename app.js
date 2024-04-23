@@ -397,6 +397,12 @@ function messageLocation() {
             window.parent.postMessage(
                 JSON.stringify({ type: "location", lat: lnglat.lat, lon: lnglat.lng }), "*");
         });
+        window.addEventListener("message", e => {
+            const msg = JSON.parse(e.data);
+            if (msg.type === "change-location") {
+                map.flyTo({ center: [ msg.lon, msg.lat ], speed: 1 });
+            }
+        });
     }
 }
 
