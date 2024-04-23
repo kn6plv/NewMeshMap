@@ -1,7 +1,7 @@
 
 let map = null;
 
-const simple = location.search.indexOf("simple=1") !== -1 ? true : false;
+const embed = location.search.indexOf("embed=1") !== -1 ? true : false;
 
 const rf = { type: "FeatureCollection", features: [] };
 const tun = { type: "FeatureCollection", features: [] };
@@ -124,7 +124,7 @@ const mapStyles = {
         ]
     }
 };
-if (config.maptiler && !simple) {
+if (config.maptiler && !embed) {
     mapStyles.standard.sources.maptiler = {
         type: "raster-dem",
         url: `https://api.maptiler.com/tiles/terrain-rgb/tiles.json?key=${config.maptiler}`,
@@ -417,9 +417,9 @@ function loadMap() {
         maxTileCacheZoomLevels: 1024 * 1024,
         maxTileCacheZoomLevels: 8,
         refreshExpiredTiles: false,
-        attributionControl: simple ? false : { compact: true }
+        attributionControl: embed ? false : { compact: true }
     });
-    if (!simple) {
+    if (!embed) {
         map.addControl(new maplibregl.NavigationControl({
             visualizePitch: true
         }), "bottom-right");
@@ -604,6 +604,16 @@ function updateLinks() {
 }
 
 function makePopup(d) {
+    if (embed) {
+        return new maplibregl.Popup({
+            className: "description",
+            closeButton: false,
+            maxWidth: "500px",
+            focusAfterOpen: false,
+            anchor: "left",
+            offset: [ 8, -4 ]
+        }).setHTML([`<div class="name">${d.node}</div>`]);
+    }
     const i = d.node_details;
     const rf = d.meshrf;
     const cname = canonicalHostname(d.node);
@@ -923,7 +933,7 @@ function findNode(name) {
 }
 
 function start() {
-    if (!simple) {
+    if (!embed) {
         document.getElementById("key").style.display = null;
         document.getElementById("ctrl").style.display = null;
     }
