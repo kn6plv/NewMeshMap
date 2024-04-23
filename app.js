@@ -1,7 +1,7 @@
 
 let map = null;
 
-const embed = location.search.indexOf("embed=1") !== -1 ? true : false;
+const embed = window.parent !== window ? true : false;
 
 const rf = { type: "FeatureCollection", features: [] };
 const tun = { type: "FeatureCollection", features: [] };
