@@ -390,6 +390,16 @@ function updateSources() {
     map.getSource("longdtd").setData(longdtd);
 }
 
+function messageLocation() {
+    if (window.parent !== window) {
+        map.on("move", () => {
+            const lnglat = map.getBounds().getCenter();
+            window.parent.postMessage(
+                JSON.stringify({ type: "location", lat: lnglat.lat, lon: lnglat.lng }), "*");
+        });
+    }
+}
+
 function loadMap() {
     map = new maplibregl.Map({
         container: "map",
@@ -414,7 +424,8 @@ function loadMap() {
     }
     createMarkers();
     updateMarkers();
-    document.querySelector("#ctrl select").innerHTML = Object.keys(mapStyles).map(style => `<option>${style}</option>`)
+    document.querySelector("#ctrl select").innerHTML = Object.keys(mapStyles).map(style => `<option>${style}</option>`);
+    messageLocation();
 }
 
 function selectMap(v) {
