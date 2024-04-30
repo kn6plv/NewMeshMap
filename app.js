@@ -213,6 +213,8 @@ let filterKeyColor = null;
 let linkPopup = null;
 let lastMarkerClickEvent = null;
 let currentStyle = "standard";
+let channels = {};
+let filterKeyChannel = "all";
 
 function toRadians(d) {
     return d * Math.PI / 180;
@@ -371,7 +373,12 @@ function createMarkers() {
 function updateMarkers() {
     for (cname in markers) {
         const m = markers[cname];
-        if (!filterKeyColor || filterKeyColor == m._color) {
+        if (filterKeyChannel !== "all" && m.getPopup()._channel === filterKeyChannel) {
+            if (!m._map) {
+                m.addTo(map);
+            }
+        }
+        else if (filterKeyChannel === "all" && (!filterKeyColor || filterKeyColor == m._color)) {
             if (!m._map) {
                 m.addTo(map);
             }
@@ -480,6 +487,16 @@ function filterKey(color) {
     updateSources();
 }
 
+function filterChannel(chan)
+{
+    filterKeyColor = null;
+    filterKeyChannel = chan;
+    updateLinks();
+    updateKey();
+    updateMarkers();
+    updateSources();
+}
+
 function updateKey() {
     function sel(c) {
         return !filterKeyColor || filterKeyColor == radioColors[c];
@@ -503,6 +520,11 @@ ${nrf ? "<tr class='" + sel("n") + "'><td><a onclick='filterKey(\"n\")'><div cla
     `;
 }
 
+function updateChannels()
+{
+    document.getElementById("filter-channel").innerHTML = "<option value='all'>all</option>" + Object.keys(channels).sort((a,b) => a - b).map(ch => `<option value=${ch}>${ch}</option>`);
+}
+
 function countRadios() {
     sn = 0;
     rf3 = 0;
@@ -510,6 +532,7 @@ function countRadios() {
     rf5 = 0;
     rf9 = 0;
     nrf = 0;
+    channels = {};
     for (cname in nodes) {
         const node = nodes[cname];
         const d = node.data;
@@ -539,6 +562,9 @@ function countRadios() {
                     nrf++;
                     break;
             }
+            if (!isNaN(chan)) {
+                channels[chan] = true;
+            }
         }
     }
 }
@@ -553,6 +579,9 @@ function updateLinks() {
     for (cname in nodes) {
         const node = nodes[cname];
         const d = node.data;
+        if (filterKeyChannel !== "all" && filterKeyChannel !== d.meshrf.channel) {
+            continue;
+        }
         if (filterKeyColor && filterKeyColor !== radioColor(d)) {
             continue;
         }
@@ -591,7 +620,7 @@ function updateLinks() {
                         break;
                     case "DTD":
                         const bd = bearingAndDistance(link.geometry.coordinates[0], link.geometry.coordinates[1]);
-                        if (bd.distance > 0.03) {
+                        if (bd.distance > 0.03 && filterKeyChannel === "all") {
                             longdtd.features.push(link);
                         }
                         break;
@@ -700,7 +729,7 @@ ${rf.status === 'on' ?
 <tr><td>Firmware</td><td>${i.firmware_version || ""}</td></tr>
 <tr><td>Neighbors</td><td class="neighbors">${neighbors.join("") || "<div>None</div>"}</td></tr>
 </table>`;
-    return new maplibregl.Popup({
+    const pop = new maplibregl.Popup({
         className: "description",
         closeButton: false,
         maxWidth: "500px",
@@ -708,6 +737,8 @@ ${rf.status === 'on' ?
         anchor: "left",
         offset: [ 8, -4 ]
     }).setHTML(lines);
+    pop._channel = rf.channel;
+    return pop;
 }
 
 function createMeasurementTool() {
@@ -943,6 +974,7 @@ function start() {
     updateLinks();
     countRadios();
     updateKey();
+    updateChannels();
     loadMap();
     createMeasurementTool();
     createLinkTool();
@@ -962,6 +994,7 @@ function start() {
             updateLinks();
             countRadios();
             updateKey();
+            updateChannels();
             createMarkers();
             updateMarkers();
             updateSources();
