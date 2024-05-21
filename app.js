@@ -454,8 +454,8 @@ function loadMap() {
         zoom: config.zoom,
         hash: true,
         boxZoom: false,
-        maxTileCacheZoomLevels: 1024 * 1024,
-        maxTileCacheZoomLevels: 8,
+        //maxTileCacheSize: 1024 * 1024,
+        //maxTileCacheZoomLevels: 8,
         refreshExpiredTiles: false,
         attributionControl: embed ? false : { compact: true }
     });
