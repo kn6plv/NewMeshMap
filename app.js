@@ -8,7 +8,8 @@ const rfd = {
     "2": { type: "FeatureCollection", features: [] },
     "3": { type: "FeatureCollection", features: [] },
     "5": { type: "FeatureCollection", features: [] },
-    "N": { type: "FeatureCollection", features: [] }
+    "N": { type: "FeatureCollection", features: [] },
+    "S": { type: "FeatureCollection", features: [] }
 }
 const tun = { type: "FeatureCollection", features: [] };
 const xlink = { type: "FeatureCollection", features: [] };
@@ -633,6 +634,7 @@ function updateLinks() {
     rfd["3"].features.length = 0;
     rfd["5"].features.length = 0;
     rfd["N"].features.length = 0;
+    rfd["S"].features.length = 0;
     tun.features.length = 0;
     xlink.features.length = 0;
     supertun.features.length = 0;
