@@ -264,12 +264,7 @@ function getRealLatLon(n) {
 
 function getVirtualLatLon(n) {
     if (n) {
-        if (n.mlat && n.lat && n.mlon && n.lon) {
-            return { lat: parseFloat(n.lat) + (n.mlat - n.lat) / 10, lon: parseFloat(n.lon) + (n.mlon - n.lon) / 10 };
-        }
-        else {
-            return { lat: n.mlat || n.lat, lon: n.mlon || n.lon };
-        }
+        return { lat: n.mlat || n.lat, lon: n.mlon || n.lon };
     }
     return {};
 }
