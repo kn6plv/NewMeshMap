@@ -1023,6 +1023,7 @@ function findNode(name) {
 }
 
 function start() {
+    const gps = (location.hash === "#here" && location.protocol === "https:" && navigator.geolocation && navigator.geolocation.getCurrentPosition);
     if (!embed) {
         document.getElementById("key").style.display = null;
         document.getElementById("ctrl").style.display = null;
@@ -1058,6 +1059,13 @@ function start() {
             updateMarkers();
             updateSources();
         });
+    }
+    if (gps) {
+        navigator.geolocation.getCurrentPosition(
+            pos => map.flyTo({ center: [ pos.coords.longitude, pos.coords.latitude ], speed: 1, zoom: 11 }),
+            _ => {},
+            {}
+        );
     }
     if (typeof idle === "function") {
         idle();
