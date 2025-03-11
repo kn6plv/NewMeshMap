@@ -459,10 +459,12 @@ function loadMap() {
         map.addControl(new maplibregl.NavigationControl({
             visualizePitch: true
         }), "bottom-right");
-        map.addControl(new maplibregl.TerrainControl({
+        const terrain = new maplibregl.TerrainControl({
             source: 'maptiler',
             exaggeration: 1.5
-        }), "bottom-right");
+        });
+        map.addControl(terrain, "bottom-right");
+        setTimeout(() => terrain._toggleTerrain(), 0); // Terrain off by default to make maps faster
     }
     createMarkers();
     updateMarkers();
