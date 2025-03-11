@@ -246,6 +246,7 @@ let lastMarkerClickEvent = null;
 let currentStyle = "standard";
 let channels = {};
 let filterKeyChannel = "all";
+let terrain;
 
 function toRadians(d) {
     return d * Math.PI / 180;
@@ -459,12 +460,12 @@ function loadMap() {
         map.addControl(new maplibregl.NavigationControl({
             visualizePitch: true
         }), "bottom-right");
-        const terrain = new maplibregl.TerrainControl({
+        terrain = new maplibregl.TerrainControl({
             source: 'maptiler',
             exaggeration: 1.5
         });
         map.addControl(terrain, "bottom-right");
-        setTimeout(() => terrain._toggleTerrain(), 0); // Terrain off by default to make maps faster
+        map.once("style.load", () => terrain._toggleTerrain()); // Terrain off by default to make maps faster
     }
     createMarkers();
     updateMarkers();
@@ -478,6 +479,7 @@ function selectMap(v) {
         currentStyle = v;
         map.setStyle(style, { diff: false });
         document.querySelector("#ctrl select").value = v;
+        map.once("style.load", () => terrain._toggleTerrain());
     }
 }
 
