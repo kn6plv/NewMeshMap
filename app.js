@@ -437,7 +437,7 @@ function messageLocation() {
         window.addEventListener("message", e => {
             const msg = JSON.parse(e.data);
             if (msg.type === "change-location") {
-                map.flyTo({ center: [ msg.lon, msg.lat ], speed: 1 });
+                map.flyTo({ center: [ msg.lon, msg.lat ], speed: embed ? 20 : 1 });
             }
         });
     }
