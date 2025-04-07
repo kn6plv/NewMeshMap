@@ -3,7 +3,7 @@ const out = {
     nodeInfo: []
 };
 
-const pending = [ "localnode" ];
+const pending = [ config.root || "localnode" ];
 const found = {};
 
 async function readNode(name) {
