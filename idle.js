@@ -74,7 +74,7 @@ function idle() {
                 break;
             }
             else if (mapStyles[step]) {
-                selectMap(step);
+                selectMap(step, true);
             }
             else {
                 const loc = step.split("/");
@@ -107,7 +107,7 @@ function idle() {
         if (tour.idling) {
             tour.idling = false;
             openPopup();
-            selectMap("standard");
+            selectMap("standard", false);
             map.flyTo({ center: [ config.lon, config.lat ], speed: 1, zoom: config.zoom, pitch: 0, bearing: 0 });
         }
     }

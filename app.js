@@ -473,13 +473,15 @@ function loadMap() {
     messageLocation();
 }
 
-function selectMap(v) {
+function selectMap(v, enableTerrain) {
     const style = mapStyles[v];
     if (style && v !== currentStyle) {
         currentStyle = v;
         map.setStyle(style, { diff: false });
         document.querySelector("#ctrl select").value = v;
-        map.once("style.load", () => terrain._toggleTerrain());
+        if (!enableTerrain) {
+            map.once("style.load", () => terrain._toggleTerrain());
+        }
     }
 }
 

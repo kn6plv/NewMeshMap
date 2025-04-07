@@ -13,7 +13,7 @@
 </head>
 <body class="normal">
     <div id="ctrl" style="display:none">
-        <select onchange="selectMap(event.target.value)">
+        <select onchange="selectMap(event.target.value, false)">
             <option>standard</option>
         </select> map | 
         <span id="ctrl-data"><select onchange="downloadData(event.target.value); event.target.value = 'data'">
