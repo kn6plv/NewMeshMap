@@ -3,6 +3,18 @@ let map = null;
 
 const embed = window.parent !== window ? true : false;
 
+config.colors = config.colors || {};
+config.colors = {
+    rf9: config.colors.rf9 || "magenta",
+    rf2: config.colors.rf2 || "purple",
+    rf3: config.colors.rf3 || "blue",
+    rf5: config.colors.rf5 || "orange",
+    tun: config.colors.tun || "grey",
+    xlink: config.colors.xlink || "red",
+    supertun: config.colors.supertun || "green",
+    longdtd: config.colors.longdtd || "limegreen"
+};
+
 const rfd = {
     "9": { type: "FeatureCollection", features: [] },
     "2": { type: "FeatureCollection", features: [] },
@@ -40,14 +52,14 @@ const mapStyles = {
         },
         layers: [
             { id: "openstreetmaps", type: "raster", source: "openstreetmaps" },
-            { id: "rf9", type: "line", source: "rf9", paint: { "line-color": "magenta", "line-width": 2 } },
-            { id: "rf2", type: "line", source: "rf2", paint: { "line-color": "purple", "line-width": 2 } },
-            { id: "rf3", type: "line", source: "rf3", paint: { "line-color": "blue", "line-width": 2 } },
-            { id: "rf5", type: "line", source: "rf5", paint: { "line-color": "orange", "line-width": 2 } },
-            { id: "tun", type: "line", source: "tun", paint: { "line-color": "gray", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
-            { id: "xlink", type: "line", source: "xlink", paint: { "line-color": "red", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
-            { id: "supertun", type: "line", source: "supertun", paint: { "line-color": "green", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
-            { id: "longdtd", type: "line", source: "longdtd", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 1,  1 ] } },
+            { id: "rf9", type: "line", source: "rf9", paint: { "line-color": config.colors.rf9, "line-width": 2 } },
+            { id: "rf2", type: "line", source: "rf2", paint: { "line-color": config.colors.rf2, "line-width": 2 } },
+            { id: "rf3", type: "line", source: "rf3", paint: { "line-color": config.colors.rf3, "line-width": 2 } },
+            { id: "rf5", type: "line", source: "rf5", paint: { "line-color": config.colors.rf5, "line-width": 2 } },
+            { id: "tun", type: "line", source: "tun", paint: { "line-color": config.colors.tun, "line-width": 2, "line-dasharray": [ 3,  2 ] } },
+            { id: "xlink", type: "line", source: "xlink", paint: { "line-color": config.colors.xlink, "line-width": 2, "line-dasharray": [ 3,  2 ] } },
+            { id: "supertun", type: "line", source: "supertun", paint: { "line-color": config.colors.supertun, "line-width": 2, "line-dasharray": [ 3,  2 ] } },
+            { id: "longdtd", type: "line", source: "longdtd", paint: { "line-color": config.colors.longdtd, "line-width": 2, "line-dasharray": [ 1,  1 ] } },
             { id: "measurement-points", type: "circle", source: "measurement", paint: { "circle-radius": 5, "circle-color": "red" }, filter: ["in", "$type", "Point"] },
             { id: "measurement-lines", type: "line", source: "measurement", paint: { "line-width": 2, "line-color": "red" }, filter: ["in", "$type", "LineString"] }
         ]
@@ -74,14 +86,14 @@ const mapStyles = {
         },
         layers: [
             { id: "openstreetmaps", type: "raster", source: "openstreetmaps" },
-            { id: "rf9", type: "line", source: "rf9", paint: { "line-color": "magenta", "line-width": 2 } },
-            { id: "rf2", type: "line", source: "rf2", paint: { "line-color": "purple", "line-width": 2 } },
-            { id: "rf3", type: "line", source: "rf3", paint: { "line-color": "blue", "line-width": 2 } },
-            { id: "rf5", type: "line", source: "rf5", paint: { "line-color": "orange", "line-width": 2 } },
-            { id: "tun", type: "line", source: "tun", paint: { "line-color": "gray", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
-            { id: "xlink", type: "line", source: "xlink", paint: { "line-color": "red", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
-            { id: "supertun", type: "line", source: "supertun", paint: { "line-color": "green", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
-            { id: "longdtd", type: "line", source: "longdtd", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 1,  1 ] } },
+            { id: "rf9", type: "line", source: "rf9", paint: { "line-color": config.colors.rf9, "line-width": 2 } },
+            { id: "rf2", type: "line", source: "rf2", paint: { "line-color": config.colors.rf2, "line-width": 2 } },
+            { id: "rf3", type: "line", source: "rf3", paint: { "line-color": config.colors.rf3, "line-width": 2 } },
+            { id: "rf5", type: "line", source: "rf5", paint: { "line-color": config.colors.rf5, "line-width": 2 } },
+            { id: "tun", type: "line", source: "tun", paint: { "line-color": config.colors.tun, "line-width": 2, "line-dasharray": [ 3,  2 ] } },
+            { id: "xlink", type: "line", source: "xlink", paint: { "line-color": config.colors.xlink, "line-width": 2, "line-dasharray": [ 3,  2 ] } },
+            { id: "supertun", type: "line", source: "supertun", paint: { "line-color": config.colors.supertun, "line-width": 2, "line-dasharray": [ 3,  2 ] } },
+            { id: "longdtd", type: "line", source: "longdtd", paint: { "line-color": config.colors.longdtd, "line-width": 2, "line-dasharray": [ 1,  1 ] } },
             { id: "measurement-points", type: "circle", source: "measurement", paint: { "circle-radius": 5, "circle-color": "red" }, filter: ["in", "$type", "Point"] },
             { id: "measurement-lines", type: "line", source: "measurement", paint: { "line-width": 2, "line-color": "red" }, filter: ["in", "$type", "LineString"] }
         ]
@@ -108,14 +120,14 @@ const mapStyles = {
         },
         layers: [
             { id: "opentopomap", type: "raster", source: "opentopomap" },
-            { id: "rf9", type: "line", source: "rf9", paint: { "line-color": "magenta", "line-width": 2 } },
-            { id: "rf2", type: "line", source: "rf2", paint: { "line-color": "purple", "line-width": 2 } },
-            { id: "rf3", type: "line", source: "rf3", paint: { "line-color": "blue", "line-width": 2 } },
-            { id: "rf5", type: "line", source: "rf5", paint: { "line-color": "orange", "line-width": 2 } },
-            { id: "tun", type: "line", source: "tun", paint: { "line-color": "gray", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
-            { id: "xlink", type: "line", source: "xlink", paint: { "line-color": "red", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
-            { id: "supertun", type: "line", source: "supertun", paint: { "line-color": "green", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
-            { id: "longdtd", type: "line", source: "longdtd", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 1,  1 ] } },
+            { id: "rf9", type: "line", source: "rf9", paint: { "line-color": config.colors.rf9, "line-width": 2 } },
+            { id: "rf2", type: "line", source: "rf2", paint: { "line-color": config.colors.rf2, "line-width": 2 } },
+            { id: "rf3", type: "line", source: "rf3", paint: { "line-color": config.colors.rf3, "line-width": 2 } },
+            { id: "rf5", type: "line", source: "rf5", paint: { "line-color": config.colors.rf5, "line-width": 2 } },
+            { id: "tun", type: "line", source: "tun", paint: { "line-color": config.colors.tun, "line-width": 2, "line-dasharray": [ 3,  2 ] } },
+            { id: "xlink", type: "line", source: "xlink", paint: { "line-color": config.colors.xlink, "line-width": 2, "line-dasharray": [ 3,  2 ] } },
+            { id: "supertun", type: "line", source: "supertun", paint: { "line-color": config.colors.supertun, "line-width": 2, "line-dasharray": [ 3,  2 ] } },
+            { id: "longdtd", type: "line", source: "longdtd", paint: { "line-color": config.colors.longdtd, "line-width": 2, "line-dasharray": [ 1,  1 ] } },
             { id: "measurement-points", type: "circle", source: "measurement", paint: { "circle-radius": 5, "circle-color": "red" }, filter: ["in", "$type", "Point"] },
             { id: "measurement-lines", type: "line", source: "measurement", paint: { "line-width": 2, "line-color": "red" }, filter: ["in", "$type", "LineString"] }
         ]
@@ -142,14 +154,14 @@ const mapStyles = {
         },
         layers: [
             { id: "landsat", type: "raster", source: "landsat" },
-            { id: "rf9", type: "line", source: "rf9", paint: { "line-color": "magenta", "line-width": 2 } },
-            { id: "rf2", type: "line", source: "rf2", paint: { "line-color": "purple", "line-width": 2 } },
-            { id: "rf3", type: "line", source: "rf3", paint: { "line-color": "blue", "line-width": 2 } },
-            { id: "rf5", type: "line", source: "rf5", paint: { "line-color": "orange", "line-width": 2 } },
-            { id: "tun", type: "line", source: "tun", paint: { "line-color": "gray", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
-            { id: "xlink", type: "line", source: "xlink", paint: { "line-color": "red", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
-            { id: "supertun", type: "line", source: "supertun", paint: { "line-color": "green", "line-width": 2, "line-dasharray": [ 3,  2 ] } },
-            { id: "longdtd", type: "line", source: "longdtd", paint: { "line-color": "limegreen", "line-width": 2, "line-dasharray": [ 1,  1 ] } },
+            { id: "rf9", type: "line", source: "rf9", paint: { "line-color": config.colors.rf9, "line-width": 2 } },
+            { id: "rf2", type: "line", source: "rf2", paint: { "line-color": config.colors.rf2, "line-width": 2 } },
+            { id: "rf3", type: "line", source: "rf3", paint: { "line-color": config.colors.rf3, "line-width": 2 } },
+            { id: "rf5", type: "line", source: "rf5", paint: { "line-color": config.colors.rf5, "line-width": 2 } },
+            { id: "tun", type: "line", source: "tun", paint: { "line-color": config.colors.tun, "line-width": 2, "line-dasharray": [ 3,  2 ] } },
+            { id: "xlink", type: "line", source: "xlink", paint: { "line-color": config.colors.xlink, "line-width": 2, "line-dasharray": [ 3,  2 ] } },
+            { id: "supertun", type: "line", source: "supertun", paint: { "line-color": config.colors.supertun, "line-width": 2, "line-dasharray": [ 3,  2 ] } },
+            { id: "longdtd", type: "line", source: "longdtd", paint: { "line-color": config.colors.longdtd, "line-width": 2, "line-dasharray": [ 1,  1 ] } },
             { id: "measurement-points", type: "circle", source: "measurement", paint: { "circle-radius": 5, "circle-color": "red" }, filter: ["in", "$type", "Point"] },
             { id: "measurement-lines", type: "line", source: "measurement", paint: { "line-width": 2, "line-color": "red" }, filter: ["in", "$type", "LineString"] }
         ]
@@ -227,12 +239,12 @@ if (config.sources) {
 const nodes = {};
 const markers = {};
 const radioColors = {
-    "2": "purple",
-    "3": "blue",
-    "5": "orange",
-    "9": "magenta",
-    "s": "green",
-    "n": "gray"
+    "2": config.colors.rf2,
+    "3": config.colors.rf3,
+    "5": config.colors.rf5,
+    "9": config.colors.rf9,
+    "s": config.colors.supertun,
+    "n": config.colors.tun
 };
 let rf9 = 0;
 let rf2 = 0;
@@ -358,14 +370,14 @@ function openPopup(chostname, zoom) {
 
 function radioColor(d) {
     if (d.node_details.mesh_supernode) {
-        return "green";
+        return config.colors.supertun || "green";
     }
     const rf = d.meshrf;
     const chan = parseInt(rf.channel);
     if (chan >= 3380 && chan <= 3495) {
-        return "blue";
+        return config.colors.rf3 || "blue";
     }
-    return radioColors[(rf.freq || "X")[0]] || "gray";
+    return radioColors[(rf.freq || "X")[0]] || config.colors.tun || "gray";
 }
 
 function radioAzimuth(d) {
