@@ -312,6 +312,10 @@ function getRfMode(mode) {
     switch (mode || "adhoc") {
         case "sta":
             return "Mesh Station";
+        case "ptp":
+            return "Mesh PtP";
+        case "ptmp":
+            return "Mesh PtMP";
         case "ap":
             return "Mesh PtMP/PtP";
         case "adhoc":
