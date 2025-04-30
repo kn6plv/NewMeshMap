@@ -308,6 +308,18 @@ function getFreqRange(freq, chanbw) {
     return `${freq}-${freq + parseInt(chanbw)} MHz`;
 }
 
+function getRfMode(mode) {
+    switch (mode || "adhoc") {
+        case "sta":
+            return "Mesh Station";
+        case "ap":
+            return "Mesh PtMP/PtP";
+        case "adhoc":
+        default:
+            return "Mesh";
+    }
+}
+
 function canonicalHostname(hostname) {
     return hostname && hostname.toUpperCase().replace(/^\./, "").replace(/^DTDLINK\./i, "").replace(/^MID\d+\./i, "").replace(/^XLINK\d+\./i, "").replace(/\.LOCAL\.MESH$/, "");
 }
@@ -798,6 +810,7 @@ ${!isNaN(rf.elevation) ? "<tr><td>Elevation</td><td>" + rf.elevation + "&deg;</t
 ${rf.status === 'on' ?
     "<tr><td>SSID</td><td>" + rf.ssid + "</td></tr>" +
     "<tr><td>Channel</td><td>" + rf.channel + "</td></tr>" +
+    "<tr><td>Mode</td><td>" + getRfMode(rf.mode) + "</td></tr>" +
     (!isNaN(rf.freq) ? "<tr><td>Frequency</td><td>" + getFreqRange(rf.freq, rf.chanbw) + "</td></tr>" : "") +
     "<tr><td>Bandwidth</td><td>" + rf.chanbw + " MHz</td></tr>" +
     "<tr><td>MAC</td><td>" + d.interfaces[0].mac + "</td></tr>" : ""
