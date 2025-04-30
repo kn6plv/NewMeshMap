@@ -57,6 +57,7 @@ async function walkOne() {
                                 ssid: m.ssid,
                                 channel: m.channel,
                                 freq: m.freq,
+                                mode: m.mode,
                                 chanbw: m.chanbw,
                                 height: m.height,
                                 azimuth: m.azimuth,
