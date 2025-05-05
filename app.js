@@ -5,7 +5,7 @@ const embed = window.parent !== window ? true : false;
 
 config.colors = config.colors || {};
 config.colors = {
-    rfh: config.colors.rfh || "magenta",
+    rfh: config.colors.rfh || "darkorchid",
     rf9: config.colors.rf9 || "magenta",
     rf2: config.colors.rf2 || "purple",
     rf3: config.colors.rf3 || "blue",
