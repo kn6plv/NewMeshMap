@@ -5,6 +5,7 @@ const embed = window.parent !== window ? true : false;
 
 config.colors = config.colors || {};
 config.colors = {
+    rfh: config.colors.rfh || "magenta",
     rf9: config.colors.rf9 || "magenta",
     rf2: config.colors.rf2 || "purple",
     rf3: config.colors.rf3 || "blue",
@@ -16,6 +17,7 @@ config.colors = {
 };
 
 const rfd = {
+    "H": { type: "FeatureCollection", features: [] },
     "9": { type: "FeatureCollection", features: [] },
     "2": { type: "FeatureCollection", features: [] },
     "3": { type: "FeatureCollection", features: [] },
@@ -40,6 +42,7 @@ const mapStyles = {
                 attribution: "&copy; OpenStreetMap Contributors",
                 maxzoom: 19
             },
+            rfh: { type: "geojson", data: rfd["H"] },
             rf9: { type: "geojson", data: rfd["9"] },
             rf2: { type: "geojson", data: rfd["2"] },
             rf3: { type: "geojson", data: rfd["3"] },
@@ -52,6 +55,7 @@ const mapStyles = {
         },
         layers: [
             { id: "openstreetmaps", type: "raster", source: "openstreetmaps" },
+            { id: "rfh", type: "line", source: "rfh", paint: { "line-color": config.colors.rfh, "line-width": 2 } },
             { id: "rf9", type: "line", source: "rf9", paint: { "line-color": config.colors.rf9, "line-width": 2 } },
             { id: "rf2", type: "line", source: "rf2", paint: { "line-color": config.colors.rf2, "line-width": 2 } },
             { id: "rf3", type: "line", source: "rf3", paint: { "line-color": config.colors.rf3, "line-width": 2 } },
@@ -74,6 +78,7 @@ const mapStyles = {
                 attribution: "&copy; OpenStreetMap Contributors",
                 maxzoom: 19
             },
+            rfh: { type: "geojson", data: rfd["H"] },
             rf9: { type: "geojson", data: rfd["9"] },
             rf2: { type: "geojson", data: rfd["2"] },
             rf3: { type: "geojson", data: rfd["3"] },
@@ -86,6 +91,7 @@ const mapStyles = {
         },
         layers: [
             { id: "openstreetmaps", type: "raster", source: "openstreetmaps" },
+            { id: "rfh", type: "line", source: "rfh", paint: { "line-color": config.colors.rfh, "line-width": 2 } },
             { id: "rf9", type: "line", source: "rf9", paint: { "line-color": config.colors.rf9, "line-width": 2 } },
             { id: "rf2", type: "line", source: "rf2", paint: { "line-color": config.colors.rf2, "line-width": 2 } },
             { id: "rf3", type: "line", source: "rf3", paint: { "line-color": config.colors.rf3, "line-width": 2 } },
@@ -108,6 +114,7 @@ const mapStyles = {
                 attribution: "&copy; OpenStreetMap Contributors",
                 maxzoom: 17
             },
+            rfh: { type: "geojson", data: rfd["H"] },
             rf9: { type: "geojson", data: rfd["9"] },
             rf2: { type: "geojson", data: rfd["2"] },
             rf3: { type: "geojson", data: rfd["3"] },
@@ -120,6 +127,7 @@ const mapStyles = {
         },
         layers: [
             { id: "opentopomap", type: "raster", source: "opentopomap" },
+            { id: "rfh", type: "line", source: "rfh", paint: { "line-color": config.colors.rfh, "line-width": 2 } },
             { id: "rf9", type: "line", source: "rf9", paint: { "line-color": config.colors.rf9, "line-width": 2 } },
             { id: "rf2", type: "line", source: "rf2", paint: { "line-color": config.colors.rf2, "line-width": 2 } },
             { id: "rf3", type: "line", source: "rf3", paint: { "line-color": config.colors.rf3, "line-width": 2 } },
@@ -142,6 +150,7 @@ const mapStyles = {
                 attribution: "&copy; Landsat / Copernicus, Maxar Technologies",
                 maxzoom: 20
             },
+            rfh: { type: "geojson", data: rfd["H"] },
             rf9: { type: "geojson", data: rfd["9"] },
             rf2: { type: "geojson", data: rfd["2"] },
             rf3: { type: "geojson", data: rfd["3"] },
@@ -154,6 +163,7 @@ const mapStyles = {
         },
         layers: [
             { id: "landsat", type: "raster", source: "landsat" },
+            { id: "rfh", type: "line", source: "rfh", paint: { "line-color": config.colors.rfh, "line-width": 2 } },
             { id: "rf9", type: "line", source: "rf9", paint: { "line-color": config.colors.rf9, "line-width": 2 } },
             { id: "rf2", type: "line", source: "rf2", paint: { "line-color": config.colors.rf2, "line-width": 2 } },
             { id: "rf3", type: "line", source: "rf3", paint: { "line-color": config.colors.rf3, "line-width": 2 } },
@@ -243,9 +253,11 @@ const radioColors = {
     "3": config.colors.rf3,
     "5": config.colors.rf5,
     "9": config.colors.rf9,
+    "h": config.colors.rfh,
     "s": config.colors.supertun,
     "n": config.colors.tun
 };
+let rfh = 0;
 let rf9 = 0;
 let rf2 = 0;
 let rf3 = 0;
@@ -393,7 +405,12 @@ function radioColor(d) {
     if (chan >= 3380 && chan <= 3495) {
         return config.colors.rf3 || "blue";
     }
-    return radioColors[(rf.freq || "X")[0]] || config.colors.tun || "gray";
+    const chanbw = parseInt(rf.chanbw);
+    let k = (`${rf.freq}` || "X")[0];
+    if (k == "9" && chanbw < 10 && chanbw != 5) {
+        k = "h";
+    }
+    return radioColors[k] || config.colors.tun || "gray";
 }
 
 function radioAzimuth(d) {
@@ -445,6 +462,7 @@ function updateMarkers() {
 }
 
 function updateSources() {
+    map.getSource("rfh").setData(rfd["H"]);
     map.getSource("rf9").setData(rfd["9"]);
     map.getSource("rf2").setData(rfd["2"]);
     map.getSource("rf3").setData(rfd["3"]);
@@ -569,6 +587,7 @@ function updateKey() {
 <div class="title">${config.title}</div>
 <table>
 <tr><td>Band</td><td>Nodes</td></tr>
+${rfh ? "<tr class='" + sel("h") + "'><td><a onclick='filterKey(\"h\")'><div class='mark' style='background-color: " + radioColors["h"] + "'></div> HaLow</a></td><td>" + rfh + "</td></tr>" : ""}
 ${rf9 ? "<tr class='" + sel("9") + "'><td><a onclick='filterKey(\"9\")'><div class='mark' style='background-color: " + radioColors["9"] + "'></div> 900 MHz</a></td><td>" + rf9 + "</td></tr>" : ""}
 ${rf2 ? "<tr class='" + sel("2") + "'><td><a onclick='filterKey(\"2\")'><div class='mark' style='background-color: " + radioColors["2"] + "'></div> 2.4 GHz</a></td><td>" + rf2 + "</td></tr>" : ""}
 ${rf3 ? "<tr class='" + sel("3") + "'><td><a onclick='filterKey(\"3\")'><div class='mark' style='background-color: " + radioColors["3"] + "'></div> 3.4 GHz</a></td><td>" + rf3 + "</td></tr>" : ""}
@@ -600,7 +619,7 @@ function radioType(node) {
         if (chan >= 3380 && chan <= 3495) {
             return "3";
         }
-        const f = (rf.freq || "X")[0];
+        const f = (`${rf.freq}` || "X")[0];
         switch (f) {
             case "2":
             case "3":
@@ -619,6 +638,7 @@ function countRadios() {
     rf2 = 0;
     rf5 = 0;
     rf9 = 0;
+    rfh = 0;
     nrf = 0;
     channels = {};
     for (cname in nodes) {
@@ -633,7 +653,7 @@ function countRadios() {
             if (chan >= 3380 && chan <= 3495) {
                 rf3++;
             }
-            else switch ((rf.freq || "X")[0]) {
+            else switch ((`${rf.freq}` || "X")[0]) {
                 case "2":
                     rf2++;
                     break;
@@ -644,7 +664,13 @@ function countRadios() {
                     rf5++;
                     break;
                 case "9":
-                    rf9++;
+                    const chanbw = parseInt(rf.chanbw);
+                    if (chanbw == 1 || chanbw == 2 || chanbw == 4 || chanbw == 8) {
+                        rfh++;
+                    }
+                    else {
+                        rf9++;
+                    }
                     break;
                 default:
                     nrf++;
@@ -915,7 +941,7 @@ function createLinkTool() {
             [e.point.x - size / 2, e.point.y - size / 2],
             [e.point.x + size / 2, e.point.y + size / 2]
         ], {
-            layers: [ "rf9", "rf2", "rf3", "rf5", "tun", "xlink", "supertun", "longdtd" ]
+            layers: [ "rfh", "rf9", "rf2", "rf3", "rf5", "tun", "xlink", "supertun", "longdtd" ]
         });
         if (features.length) {
             const p = features[0].properties;
@@ -1006,7 +1032,7 @@ function createLinkTool() {
             [e.point.x - size / 2, e.point.y - size / 2],
             [e.point.x + size / 2, e.point.y + size / 2]
         ], {
-            layers: [ "rf9", "rf2", "rf3", "rf5", "tun", "xlink", "supertun", "longdtd" ]
+            layers: [ "rfh", "rf9", "rf2", "rf3", "rf5", "tun", "xlink", "supertun", "longdtd" ]
         });
         if (features.length) {
             map.getCanvas().style.cursor = "pointer";
