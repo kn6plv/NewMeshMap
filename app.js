@@ -624,8 +624,13 @@ function radioType(node) {
             case "2":
             case "3":
             case "5":
-            case "9":
                 return f;
+            case "9":
+                const chanbw = parseInt(rf.chanbw);
+                if (chanbw == 1 || chanbw == 2 || chanbw == 4 || chanbw == 8) {
+                    return "H";
+                }
+                return "9";
             default:
                 return "N";
         }
@@ -684,6 +689,7 @@ function countRadios() {
 }
 
 function updateLinks() {
+    rfd["H"].features.length = 0;
     rfd["9"].features.length = 0;
     rfd["2"].features.length = 0;
     rfd["3"].features.length = 0;
