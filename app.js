@@ -445,7 +445,7 @@ function createMarkers() {
 function updateMarkers() {
     for (cname in markers) {
         const m = markers[cname];
-        if (filterKeyChannel !== "all" && m.getPopup()._channel === filterKeyChannel) {
+        if (filterKeyChannel !== "all" && m.getPopup()._channel == filterKeyChannel) {
             if (!m._map) {
                 m.addTo(map);
             }
