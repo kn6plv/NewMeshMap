@@ -48,7 +48,7 @@ async function walkOne() {
                             lastseen: Math.floor(Date.now() / 1000),
                             node_details: {
                                 description: d.description,
-                                hardware: d.hardware,
+                                hardware: d.model,
                                 firmware_version: d.firmware_version,
                                 mesh_supernode: d.mesh_supernode
                             },
