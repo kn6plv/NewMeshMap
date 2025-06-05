@@ -421,6 +421,25 @@ function radioAzimuth(d) {
     return 180 + parseInt(a);
 }
 
+function supportsBabel(d) {
+    if (d && d.node_details && d.node_details.firmware_version) {
+        const v = d.node_details.firmware_version;
+        if (v.indexOf("babel-") === 0) {
+            return true;
+        }
+        const n = v.split("-");
+        if (n.length === 2 && n[0] >= 20250507) {
+            return true;
+        }
+        const vn = v.split(".");
+        if (vn.length === 4 &&
+            ((vn[0] == 4) || (vn[0] == 3 && vn[1] > 25) || (vn[0] == 3 && vn[1] == 25 && vn[2] >= 5))) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function createMarkers() {
     for (cname in nodes) {
         const data = nodes[cname].data;
@@ -428,7 +447,8 @@ function createMarkers() {
             const loc = getVirtualLatLon(data);
             if (loc.lat && loc.lon) {
                 const rot = radioAzimuth(data);
-                markers[cname] = new maplibregl.Marker({ anchor: "top", color: radioColor(data), scale: 0.75, pitchAlignment: "viewport", rotationAlignment: rot === null ? "viewport" : "map", rotation: rot }).setLngLat([ loc.lon, loc.lat ]).setPopup(makePopup(data));
+                const babel = supportsBabel(data);
+                markers[cname] = new maplibregl.Marker({ anchor: "top", color: radioColor(data), opacity: babel ? 1 : 0.5, scale: babel ? 0.8 : 0.7, pitchAlignment: "viewport", rotationAlignment: rot === null ? "viewport" : "map", rotation: rot }).setLngLat([ loc.lon, loc.lat ]).setPopup(makePopup(data));
                 markers[cname].getElement().addEventListener("click", e => {
                     lastMarkerClickEvent = e;
                 });
@@ -853,6 +873,7 @@ ${rf.status === 'on' ?
 }
 <tr><td>Hardware</td><td>${i.hardware || ""}</td></tr>
 <tr><td>Firmware</td><td>${i.firmware_version || ""}</td></tr>
+<tr><td>Babel</td><td>${supportsBabel(d) ? "Yes" : "No"}</td></tr>
 <tr><td>Neighbors</td><td class="neighbors">${neighbors.join("") || "<div>None</div>"}</td></tr>
 </table>`;
     const pop = new maplibregl.Popup({
