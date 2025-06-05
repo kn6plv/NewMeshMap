@@ -264,6 +264,7 @@ let rf3 = 0;
 let rf5 = 0;
 let sn = 0;
 let nrf = 0;
+let bn = 0;
 let filterKeyColor = null;
 let linkPopup = null;
 let lastMarkerClickEvent = null;
@@ -614,6 +615,7 @@ ${rf3 ? "<tr class='" + sel("3") + "'><td><a onclick='filterKey(\"3\")'><div cla
 ${rf5 ? "<tr class='" + sel("5") + "'><td><a onclick='filterKey(\"5\")'><div class='mark' style='background-color: " + radioColors["5"] + "'></div> 5 GHz</a></td><td>" + rf5 + "</td></tr>" : ""}
 ${sn  ? "<tr class='" + sel("s") + "'><td><a onclick='filterKey(\"s\")'><div class='mark' style='background-color: " + radioColors["s"] + "'></div> Supernode</a></td><td>" + sn + "</td></tr>" : ""}
 ${nrf ? "<tr class='" + sel("n") + "'><td><a onclick='filterKey(\"n\")'><div class='mark' style='background-color: " + radioColors["n"] + "'></div> No RF</a></td><td>" + nrf + "</td></tr>" : ""}
+<tr><td style="padding-left:32px">Babel</td><td>${bn}</td></tr>
 <tr><td>Total</td><td>${out.nodeInfo.length}</td></tr>
 </table>
 <div class="footer">
@@ -665,10 +667,14 @@ function countRadios() {
     rf9 = 0;
     rfh = 0;
     nrf = 0;
+    bn = 0;
     channels = {};
     for (cname in nodes) {
         const node = nodes[cname];
         const d = node.data;
+        if (supportsBabel(d)) {
+            bn++;
+        }
         if (d.node_details.mesh_supernode) {
             sn++;
         }
