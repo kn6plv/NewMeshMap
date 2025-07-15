@@ -1,7 +1,8 @@
 
 let map = null;
 
-const embed = window.parent !== window ? true : false;
+const fullmap = window.innerWidth > 800;
+const embed = window.parent !== window && !fullmap ? true : false;
 
 config.colors = config.colors || {};
 config.colors = {
