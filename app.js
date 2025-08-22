@@ -861,7 +861,7 @@ function makePopup(d) {
 ${i.description ? "<tr><td>Description</td><td>" + i.description.replace("&deg;", "\u00B0") + "</td></tr>" : ""}
 <tr><td>Location</td><td>${dloc.lat},${dloc.lon}</td></tr>
 ${rf.antenna && rf.antenna.description ? "<tr><td>Antenna</td><td>" + rf.antenna.description.replace("&deg;", "\u00B0") + "</td></tr>" : ""}
-${!isNaN(rf.polarization) ? "<tr><td>Polarization</td><td style='text-transform:capitalize'>" + rf.polarization + "</td></tr>" : ""}
+${rf.polarization ? "<tr><td>Polarization</td><td style='text-transform:capitalize'>" + rf.polarization + "</td></tr>" : ""}
 ${!isNaN(rf.azimuth) ? "<tr><td>Azimuth</td><td>" + rf.azimuth + "&deg;</td></tr>" : ""}
 ${!isNaN(rf.height) ? "<tr><td>Height</td><td>" + rf.height + " m</td></tr>" : ""}
 ${!isNaN(rf.elevation) ? "<tr><td>Elevation</td><td>" + rf.elevation + "&deg;</td></tr>" : ""}
