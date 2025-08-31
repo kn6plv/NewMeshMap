@@ -1,0 +1,338 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+<style>
+html, body {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  font-family: Arial, Helvetica, sans-serif;
+  touch-action: none;
+}
+#intro {
+  position: absolute;
+  display: none;
+  height: 100%;
+  width: 100%;
+  z-index: 5;
+  background-color: rgba(0,0,0,0.8);
+  overflow: hidden;
+}
+#intro .t {
+  color: white;
+  padding-top: 200px;
+  font-size: 30px;
+  text-align: center;
+}
+#intro .d {
+  text-align: center;
+  color: white;
+  width: 300px;
+  padding: 20px 0 40px 0;
+  margin: 0 auto;
+}
+#intro button {
+  display: block;
+  background-color: black;
+  color: white;
+  font-size: 20px;
+  padding: 10px 30px;
+  margin: 0 auto;
+}
+#map {
+  position: absolute;
+  height: 2000px;
+  width: 2000px;
+  overflow: hidden;
+  z-index: 1;
+}
+#comp {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 90px;
+  width: 100%;
+  background-color: black;
+  z-index: 2;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.cs {
+  position: absolute;
+  color: white;
+  height: 18px;
+}
+.cs .l {
+  position: relative;
+  left: -50%;
+  padding: 0px 5px;
+  font-size: 16px;
+  line-height: 18px;
+  vertical-align: center;
+}
+.cs .i {
+  display: inline-block;
+  margin-left: 4px;
+}
+.cs small {
+  display: block;
+  font-size: 8px;
+  color: #eee;
+  line-height: 9px;
+}
+.desktop {
+  color: white;
+  text-align: center;
+  font-size: 28px;
+  padding-top: 28px;
+}
+</style>
+</head>
+<body>
+  <div id="intro">
+    <div class="t">Mesh Compass</div>
+    <div class="d">The Mesh Compass helps you locate the position of mesh nodes close to you.
+      To do this it requires your location and compass direction. No information is shared by this app.
+    </div>
+    <button>Okay</button>
+  </div>
+  <div id="map"></div>
+  <div id="comp"></div>
+  <script>
+    const ColorAll = '#707070';
+    const Color5 = 'darkorange';
+    const Color24 = 'purple';
+
+    const radiosUrl = '/data/out.json';
+    let loc = null;
+    let radios = null;
+    let heading = 0;
+    let compassOffset = 0;
+    const radioList = [];
+    const displayList = [];
+    const compRange = 10;
+    const compLineH = 21;
+    const compLines = 4;
+
+    const d2r = (d) => d / 180 * Math.PI;
+    const r2d = (r) => r * 180 / Math.PI;
+    const r2m = (r) => r * 6371008.8 / 1609.344;
+    const ad = (a,b) => r2d(Math.atan2(Math.sin(d2r(a - b)), Math.cos(d2r(a - b))))
+
+    const m = document.getElementById('map');
+    const comp = document.getElementById('comp');
+
+    const ori = () => {
+      compassOffset = (360 + window.orientation) % 360;
+      m.style.top = document.body.offsetHeight * 3 / 4 - m.clientHeight / 2;
+      m.style.left = document.body.offsetWidth / 2 - m.clientWidth / 2;
+    }
+
+    window.addEventListener('orientationchange', () => setTimeout(ori, 100));
+    ori();
+
+    const map = L.map(m, {
+      dragging: false,
+      attributionControl: false,
+      zoomControl: false,
+      doubleClickZoom: false,
+      touchZoom: false,
+    });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    const updateRadios = () => {
+      if (!(radios && loc)) {
+        return;
+      }
+      const lon = d2r(loc.lng);
+      const lat = d2r(loc.lat);
+      radios.nodeInfo.forEach(node => {
+        const nodelon = parseFloat(node.data.lon);
+        const nodelat = parseFloat(node.data.lat);
+        const nlon = d2r(nodelon);
+        const nlat = d2r(nodelat);
+ 
+        const dLat = nlat - lat;
+        const dLon = nlon - lon;
+        const aa = Math.pow(Math.sin(dLat / 2), 2) + Math.pow(Math.sin(dLon / 2), 2) * Math.cos(lat) * Math.cos(nlat);
+        const distance = r2m(2 * Math.atan2(Math.sqrt(aa), Math.sqrt(1 - aa)));
+
+        if (distance > 0.1 && node.data.meshrf.freq) {
+          const a = Math.sin(nlon - lon) * Math.cos(nlat);
+          const b = Math.cos(lat) * Math.sin(nlat) - Math.sin(lat) * Math.cos(nlat) * Math.cos(nlon - lon);
+          const bearing = r2d(Math.atan2(a, b));
+          const div = document.createElement('div');
+          div.appendChild(document.createElement('div')).className = 'l';
+          div.className = 'cs';
+          div.firstElementChild.innerHTML = `${node.data.node}<div class="i"><small>Channel ${node.data.meshrf.channel}</small><small>${distance.toFixed(1)} miles</small></div>`;
+          radioList.push({
+            loc: [ nodelat, nodelon ],
+            bearing: bearing,
+            distance: distance,
+            rf: node.data.meshrf,
+            div: div,
+          });
+        }
+      });
+      radioList.sort((a, b) => a.distance - b.distance);
+
+      for (let i = 0; i < 30 && i < radioList.length; i++) {
+        const r = radioList[i];
+        displayList.push(r);
+        let color = ColorAll;
+        if (r.rf.freq.startsWith('5')) {
+          color = Color5;
+        }
+        else if (r.rf.freq.startsWith('2')) {
+          color = Color24;
+        }
+        L.polyline([[ loc.lat, loc.lng ], r.loc ], {
+          color: color,
+          weight: 3,
+        }).addTo(map);
+      }
+
+      L.circle(loc, {
+        color: 'darkgreen',
+        fillColor: 'green',
+        fillOpacity: 1.0,
+        radius: 10
+      }).addTo(map);
+    }
+
+    const isMobile = () => {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+        (/macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints && navigator.maxTouchPoints > 2);
+    }
+
+    const updateComp = () => {
+      if (!isMobile()) {
+        comp.innerHTML = '<div class="desktop">This works best when used on a mobile device</div>';
+        return;
+      }
+      for (let i = 0; i < displayList.length; i++) {
+        const d = displayList[i];
+        if (d.div.parentNode) {
+          const diff = ad(heading, d.bearing);
+          if (Math.abs(diff) > compRange * 2) {
+            d.div.remove();
+          }
+          else {
+            d.div.style.left = `${50 - 50 * diff / compRange}%`;
+          }
+        }
+      }
+      for (let i = 0; i < displayList.length; i++) {
+        const d = displayList[i];
+        if (!d.div.parentNode) {
+          const diff = ad(heading, d.bearing);
+          if (Math.abs(diff) < compRange * 2) {
+            comp.appendChild(d.div);
+            d.div.style.left = `${50 - 50 * diff / compRange}%`;
+            let t;
+            for (t = 0; t < compLines; t++) {
+              d.div.style.top = `${4 + t * compLineH}px`;
+              const dr = d.div.firstChild.getBoundingClientRect();
+              const collide = () => {
+                for (let j = 0; j < displayList.length; j++) {
+                  const o = displayList[j];
+                  if (o != d && o.div.parentNode) {
+                    const or = o.div.firstChild.getBoundingClientRect()
+                    if (!(dr.top > or.bottom || dr.right < or.left || dr.bottom < or.top || dr.left > or.right)) {
+                      return true;
+                    }
+                  }
+                }
+                return false;
+              }
+              if (!collide()) {
+                break;
+              }
+            }
+            if (t == compLines) {
+              d.div.remove();
+            }
+          }
+        }
+      }
+    }
+    updateComp();
+
+    map.on('locationfound', e => {
+      loc = e.latlng;
+      updateRadios();
+    });
+
+    fetch(radiosUrl).then(r => r.json()).then(j => {
+      radios = j;
+      updateRadios();
+    });
+
+    if (window.AbsoluteOrientationSensor && navigator.permissions && navigator.permissions.query) {
+      const sensor = new AbsoluteOrientationSensor({ frequency: 60, referenceFrame: 'device' });
+      Promise.all([
+        navigator.permissions.query({ name: "accelerometer" }),
+        navigator.permissions.query({ name: "magnetometer" }),
+        navigator.permissions.query({ name: "gyroscope" })]
+      ).then(g => {
+        map.locate({ setView: true, maxZoom: 17 });
+        if (g.every(r => r.state === "granted")) {
+          sensor.addEventListener('reading', e => {
+            const q = e.target.quaternion;
+            heading = Math.floor(360 + compassOffset - r2d(Math.atan2(2 * q[0] * q[1] + 2 * q[2] * q[3], 1 - 2 * q[1] * q[1] - 2 * q[2] * q[2]))) % 360;
+            m.style.transform = `rotate(-${heading}deg)`;
+            updateComp();
+          });
+          sensor.start();
+        }
+      });
+    }
+    else if (window.DeviceOrientationEvent && typeof(window.DeviceOrientationEvent.requestPermission) === 'function') {
+      DeviceOrientationEvent.requestPermission().then(g => {
+        map.locate({ setView: true, maxZoom: 17 });
+      }).catch(e => {
+        const i = document.getElementById('intro');
+        i.style.display = 'block';
+        i.getElementsByTagName('button')[0].addEventListener('click', () => {
+          i.style.display = 'none';
+          map.locate({ setView: true, maxZoom: 17 });
+          DeviceOrientationEvent.requestPermission();
+        });
+      });
+      window.addEventListener('deviceorientation', e => {
+        if (e.absolute) {
+          heading = (360 + compassOffset + e.alpha) % 360;
+        }
+        else if ('webkitCompassHeading' in e) {
+          heading = (360 + compassOffset + e.webkitCompassHeading) % 360;
+        }
+        m.style.transform = `rotate(-${heading}deg)`;
+        updateComp();
+      });
+    }
+    else {
+      map.locate({ setView: true, maxZoom: 17 });
+    }
+
+    let mouseStart = 0;
+    comp.addEventListener("touchstart", e => {
+      mouseStart = e.touches.item(0).clientX;
+    });
+    comp.addEventListener("touchmove", e => {
+      const x = e.touches.item(0).clientX;
+      if (x < mouseStart) {
+        compassOffset += 0.5;
+      }
+      else {
+        compassOffset -= 0.5;
+      }
+      mouseStart = x;
+    });
+  </script>
+</body>
+</html>
