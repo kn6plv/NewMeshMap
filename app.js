@@ -265,7 +265,6 @@ let rf3 = 0;
 let rf5 = 0;
 let sn = 0;
 let nrf = 0;
-let bn = 0;
 let filterKeyColor = null;
 let linkPopup = null;
 let lastMarkerClickEvent = null;
@@ -423,25 +422,6 @@ function radioAzimuth(d) {
     return 180 + parseInt(a);
 }
 
-function supportsBabel(d) {
-    if (d && d.node_details && d.node_details.firmware_version) {
-        const v = d.node_details.firmware_version;
-        if (v.indexOf("babel-") === 0) {
-            return true;
-        }
-        const n = v.split("-");
-        if (n.length === 2 && n[0] >= 20250507) {
-            return true;
-        }
-        const vn = v.split(".");
-        if (vn.length === 4 &&
-            ((vn[0] == 4) || (vn[0] == 3 && vn[1] > 25) || (vn[0] == 3 && vn[1] == 25 && vn[2] >= 5))) {
-            return true;
-        }
-    }
-    return false;
-}
-
 function createMarkers() {
     for (cname in nodes) {
         const data = nodes[cname].data;
@@ -449,8 +429,7 @@ function createMarkers() {
             const loc = getVirtualLatLon(data);
             if (loc.lat && loc.lon) {
                 const rot = radioAzimuth(data);
-                const babel = supportsBabel(data);
-                markers[cname] = new maplibregl.Marker({ anchor: "top", color: radioColor(data), opacity: babel ? 1 : 0.5, scale: babel ? 0.8 : 0.7, pitchAlignment: "viewport", rotationAlignment: rot === null ? "viewport" : "map", rotation: rot }).setLngLat([ loc.lon, loc.lat ]).setPopup(makePopup(data));
+                markers[cname] = new maplibregl.Marker({ anchor: "top", color: radioColor(data), opacity: 1, scale: 0.8, pitchAlignment: "viewport", rotationAlignment: rot === null ? "viewport" : "map", rotation: rot }).setLngLat([ loc.lon, loc.lat ]).setPopup(makePopup(data));
                 markers[cname].getElement().addEventListener("click", e => {
                     lastMarkerClickEvent = e;
                 });
@@ -616,7 +595,6 @@ ${rf3 ? "<tr class='" + sel("3") + "'><td><a onclick='filterKey(\"3\")'><div cla
 ${rf5 ? "<tr class='" + sel("5") + "'><td><a onclick='filterKey(\"5\")'><div class='mark' style='background-color: " + radioColors["5"] + "'></div> 5 GHz</a></td><td>" + rf5 + "</td></tr>" : ""}
 ${sn  ? "<tr class='" + sel("s") + "'><td><a onclick='filterKey(\"s\")'><div class='mark' style='background-color: " + radioColors["s"] + "'></div> Supernode</a></td><td>" + sn + "</td></tr>" : ""}
 ${nrf ? "<tr class='" + sel("n") + "'><td><a onclick='filterKey(\"n\")'><div class='mark' style='background-color: " + radioColors["n"] + "'></div> No RF</a></td><td>" + nrf + "</td></tr>" : ""}
-<tr><td style="padding-left:32px">Babel</td><td>${bn}</td></tr>
 <tr><td>Total</td><td>${out.nodeInfo.length}</td></tr>
 </table>
 <div class="footer">
@@ -668,14 +646,10 @@ function countRadios() {
     rf9 = 0;
     rfh = 0;
     nrf = 0;
-    bn = 0;
     channels = {};
     for (cname in nodes) {
         const node = nodes[cname];
         const d = node.data;
-        if (supportsBabel(d)) {
-            bn++;
-        }
         if (d.node_details.mesh_supernode) {
             sn++;
         }
@@ -881,7 +855,6 @@ ${rf.status === 'on' ?
 }
 <tr><td>Hardware</td><td>${i.hardware || ""}</td></tr>
 <tr><td>Firmware</td><td>${i.firmware_version || ""}</td></tr>
-<tr><td>Babel</td><td>${supportsBabel(d) ? "Yes" : "No"}</td></tr>
 <tr><td>Neighbors</td><td class="neighbors">${neighbors.join("") || "<div>None</div>"}</td></tr>
 </table>`;
     const pop = new maplibregl.Popup({
