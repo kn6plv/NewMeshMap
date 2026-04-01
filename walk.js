@@ -65,7 +65,7 @@ async function walkOne() {
                                 antenna: m.antenna ? { description : m.antenna.description } : undefined
                             },
                             interfaces: [
-                                { mac: node.interfaces.find(i => i.mac ).mac }
+                                { mac: (node.interfaces.find(i => i.mac) || {}).mac }
                             ],
                             link_info: link_info
                         }
