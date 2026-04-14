@@ -773,6 +773,7 @@ function makePopup(d) {
     const rf = d.meshrf;
     const cname = canonicalHostname(d.node);
     const dloc = getVirtualLatLon(d);
+    const rloc = getRealLatLon(d);
     const neighbors = Object.values(d.link_info).map(l => {
         const chostname = canonicalHostname(l.hostname);
         const hn = nodes[chostname];
@@ -833,7 +834,7 @@ function makePopup(d) {
 <div class="name"><a href="http://${d.node}.local.mesh/" target="_blank">${d.node}</a></div>
 <table>
 ${i.description ? "<tr><td>Description</td><td>" + i.description.replace("&deg;", "\u00B0") + "</td></tr>" : ""}
-<tr><td>Location</td><td>${dloc.lat},${dloc.lon}</td></tr>
+<tr><td>Location</td><td>${rloc.lat},${rloc.lon}</td></tr>
 ${rf.antenna && rf.antenna.description ? "<tr><td>Antenna</td><td>" + rf.antenna.description.replace("&deg;", "\u00B0") + "</td></tr>" : ""}
 ${rf.polarization ? "<tr><td>Polarization</td><td style='text-transform:capitalize'>" + rf.polarization + "</td></tr>" : ""}
 ${!isNaN(rf.azimuth) ? "<tr><td>Azimuth</td><td>" + rf.azimuth + "&deg;</td></tr>" : ""}
