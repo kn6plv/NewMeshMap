@@ -422,6 +422,19 @@ function radioAzimuth(d) {
     return 180 + parseInt(a);
 }
 
+function alignCoords(coords)
+{
+    // [[ lon, lat], [lon, lat ]]
+    const diff = coords[1][0] - coords[0][0];
+    if (diff > 180) {
+        coords[1][0] -= 360;
+    }
+    else if (diff < -180) {
+        coords[1][0] += 360;
+    }
+    return coords;
+}
+
 function createMarkers() {
     for (cname in nodes) {
         const data = nodes[cname].data;
@@ -501,7 +514,8 @@ function loadMap() {
         //maxTileCacheSize: 1024 * 1024,
         //maxTileCacheZoomLevels: 8,
         refreshExpiredTiles: false,
-        attributionControl: embed ? false : { compact: true }
+        attributionControl: embed ? false : { compact: true },
+        renderWorldCopies: true
     });
     if (!embed) {
         map.addControl(new maplibregl.NavigationControl({
@@ -726,7 +740,7 @@ function updateLinks() {
                 const id = `${cname}/${chostname}`;
                 if (!done[id] && !done[`${chostname}/${cname}`]) {
                     done[id] = true;
-                    link = { type: "Feature", properties: { from: cname, to: chostname }, geometry: { type: "LineString", coordinates: [[ dloc.lon, dloc.lat ], [ hloc.lon, hloc.lat ]] } };
+                    link = { type: "Feature", properties: { from: cname, to: chostname }, geometry: { type: "LineString", coordinates: alignCoords([[ dloc.lon, dloc.lat ], [ hloc.lon, hloc.lat ]]) } };
                 }
             }
             if (link) {
