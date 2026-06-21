@@ -515,7 +515,7 @@ function loadMap() {
         //maxTileCacheZoomLevels: 8,
         refreshExpiredTiles: false,
         attributionControl: embed ? false : { compact: true },
-        renderWorldCopies: true
+        renderWorldCopies: false
     });
     if (!embed) {
         map.addControl(new maplibregl.NavigationControl({
