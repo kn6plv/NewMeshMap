@@ -866,7 +866,7 @@ ${rf.status === 'on' ?
     "<tr><td>Mode</td><td>" + getRfMode(rf.mode) + "</td></tr>" +
     (!isNaN(rf.freq) ? "<tr><td>Frequency</td><td>" + getFreqRange(rf.freq, rf.chanbw) + "</td></tr>" : "") +
     "<tr><td>Bandwidth</td><td>" + rf.chanbw + " MHz</td></tr>" +
-    "<tr><td>MAC</td><td>" + d.interfaces[0].mac + "</td></tr>" : ""
+    (d.interfaces[0].mac ? "<tr><td>MAC</td><td>" + d.interfaces[0].mac + "</td></tr>" : "") : ""
 }
 <tr><td>Hardware</td><td>${i.hardware || ""}</td></tr>
 <tr><td>Firmware</td><td>${i.firmware_version || ""}</td></tr>
