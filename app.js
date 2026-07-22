@@ -1084,10 +1084,15 @@ function toggleFind() {
 }
 
 function findNode(name) {
+    let m;
     name = canonicalHostname(name.trim());
     if (nodes[name]) {
         openPopup(name, 13);
         toggleFind();
+    }
+    else if ((m = name.match(/^(-?\d+(\.\d+)?),\s*(-?\d+(\.\d+)?)$/))) {
+        openPopup();
+        map.flyTo({ center: [ m[3], m[1] ], speed: 1, zoom: 13 });
     }
     else if (config.geoapify) {
         fetch(`https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(name)}&apiKey=${config.geoapify}`, { method: "GET" })
