@@ -448,11 +448,6 @@ function createMarkers() {
                 });
             }
         }
-        else {
-            if (!markers[cname].getPopup().isOpen()) {
-                markers[cname].setPopup(makePopup(data));
-            }
-        }
     }
 }
 
@@ -772,20 +767,10 @@ function updateLinks() {
     }
 }
 
-function makePopup(d) {
-    if (embed) {
-        return new maplibregl.Popup({
-            className: "description",
-            closeButton: false,
-            maxWidth: "500px",
-            focusAfterOpen: false,
-            anchor: "left",
-            offset: [ 8, -4 ]
-        }).setHTML([`<div class="name">${d.node}</div>`]);
-    }
+function makePopupHTML(cname) {
+    const d = nodes[cname].data;
     const i = d.node_details;
     const rf = d.meshrf;
-    const cname = canonicalHostname(d.node);
     const dloc = getVirtualLatLon(d);
     const rloc = getRealLatLon(d);
     const neighbors = Object.values(d.link_info).map(l => {
@@ -872,6 +857,12 @@ ${rf.status === 'on' ?
 <tr><td>Firmware</td><td>${i.firmware_version || ""}</td></tr>
 <tr><td>Neighbors</td><td class="neighbors">${neighbors.join("") || "<div>None</div>"}</td></tr>
 </table>`;
+    return lines;
+}
+
+function makePopup(d)
+{
+    const cname = canonicalHostname(d.node);
     const pop = new maplibregl.Popup({
         className: "description",
         closeButton: false,
@@ -879,8 +870,14 @@ ${rf.status === 'on' ?
         focusAfterOpen: false,
         anchor: "left",
         offset: [ 8, -4 ]
-    }).setHTML(lines);
-    pop._channel = rf.channel;
+    });
+    if (embed) {
+        pop.setHTML([`<div class="name">${cname}</div>`]);
+    }
+    else {
+        pop._channel = d.meshrf.channel;
+        pop.on("open", _ => pop.setHTML(makePopupHTML(cname)));
+    }
     return pop;
 }
 
