@@ -613,7 +613,7 @@ function loadMap() {
         //maxTileCacheZoomLevels: 8,
         refreshExpiredTiles: false,
         attributionControl: embed ? false : { compact: true },
-        renderWorldCopies: false
+        renderWorldCopies: true
     });
     map.on("style.load", () => {
         addPinImages();
