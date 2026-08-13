@@ -1,4 +1,3 @@
-
 let map = null;
 
 const fullmap = window.innerWidth > 800;
@@ -31,6 +30,7 @@ const xlink = { type: "FeatureCollection", features: [] };
 const supertun = { type: "FeatureCollection", features: [] };
 const longdtd = { type: "FeatureCollection", features: [] };
 const measurements = { type: "FeatureCollection", features: [] };
+const nodeFC = { type: "FeatureCollection", features: [] };
 
 const mapStyles = {
     standard: {
@@ -247,8 +247,35 @@ if (config.sources) {
     }
 }
 
+// Nodes are rendered as symbol layers (GPU) rather than DOM markers.
+// Two layers because icon-rotation-alignment cannot vary per-feature:
+// nodes with an azimuth rotate with the map, the rest stay screen-aligned.
+const nodeLayout = {
+    "icon-image": ["concat", "pin-", ["get", "color"]],
+    "icon-size": 0.8,
+    "icon-anchor": "bottom",
+    "icon-offset": [0, 3],
+    "icon-allow-overlap": true,
+    "icon-ignore-placement": true,
+    "icon-pitch-alignment": "viewport"
+};
+for (k in mapStyles) {
+    mapStyles[k].sources.nodes = { type: "geojson", data: nodeFC };
+    mapStyles[k].layers.push(
+        {
+            id: "nodes-rot", type: "symbol", source: "nodes",
+            filter: ["==", ["get", "aligned"], 1],
+            layout: Object.assign({}, nodeLayout, { "icon-rotate": ["get", "rotation"], "icon-rotation-alignment": "map" })
+        },
+        {
+            id: "nodes-flat", type: "symbol", source: "nodes",
+            filter: ["==", ["get", "aligned"], 0],
+            layout: Object.assign({}, nodeLayout, { "icon-rotation-alignment": "viewport" })
+        }
+    );
+}
+
 const nodes = {};
-const markers = {};
 const radioColors = {
     "2": config.colors.rf2,
     "3": config.colors.rf3,
@@ -267,6 +294,7 @@ let sn = 0;
 let nrf = 0;
 let filterKeyColor = null;
 let linkPopup = null;
+let nodePopup = null;
 let lastMarkerClickEvent = null;
 let currentStyle = "standard";
 let channels = {};
@@ -374,25 +402,39 @@ function setMode(mode) {
     }
 }
 
+function showNodePopup(cname, lnglat) {
+    if (nodePopup) {
+        nodePopup.remove();
+    }
+    nodePopup = new maplibregl.Popup({
+        className: "description",
+        closeButton: false,
+        maxWidth: "500px",
+        focusAfterOpen: false,
+        anchor: "left",
+        offset: [ 8, -4 ]
+    }).setHTML(embed ? `<div class="name">${cname}</div>` : makePopupHTML(cname)).setLngLat(lnglat).addTo(map);
+}
+
 function openPopup(chostname, zoom) {
-    for (m in markers) {
-        if (markers[m].getPopup().isOpen()) {
-            markers[m].togglePopup();
-        }
+    if (nodePopup) {
+        nodePopup.remove();
+        nodePopup = null;
     }
     if (linkPopup) {
         linkPopup.remove();
         linkPopup = null;
     }
-    const marker = markers[chostname];
-    if (marker && marker._map) {
-        const options = { center: marker.getLngLat(), speed: 1 };
+    const n = nodes[chostname];
+    const loc = getVirtualLatLon(n && n.data);
+    if (loc.lat && loc.lon) {
+        const options = { center: [ loc.lon, loc.lat ], speed: 1 };
         if (zoom !== undefined) {
             options.zoom = zoom;
         }
         map.flyTo(options);
         map.once("moveend", () => {
-            marker.togglePopup();
+            showNodePopup(chostname, [ loc.lon, loc.lat ]);
         });
     }
 }
@@ -435,39 +477,95 @@ function alignCoords(coords)
     return coords;
 }
 
-function createMarkers() {
+function buildNodeFeatures() {
+    nodeFC.features = [];
     for (cname in nodes) {
         const data = nodes[cname].data;
-        if (!markers[cname]) {
-            const loc = getVirtualLatLon(data);
-            if (loc.lat && loc.lon) {
-                const rot = radioAzimuth(data);
-                markers[cname] = new maplibregl.Marker({ anchor: "top", color: radioColor(data), opacity: 1, scale: 0.8, pitchAlignment: "viewport", rotationAlignment: rot === null ? "viewport" : "map", rotation: rot }).setLngLat([ loc.lon, loc.lat ]).setPopup(makePopup(data));
-                markers[cname].getElement().addEventListener("click", e => {
-                    lastMarkerClickEvent = e;
-                });
+        const loc = getVirtualLatLon(data);
+        if (loc.lat && loc.lon) {
+            const rot = radioAzimuth(data);
+            nodeFC.features.push({
+                type: "Feature",
+                properties: {
+                    name: cname,
+                    color: radioColor(data),
+                    channel: `${data.meshrf.channel}`,
+                    rotation: rot === null ? 0 : rot,
+                    aligned: rot === null ? 0 : 1
+                },
+                geometry: { type: "Point", coordinates: [ loc.lon, loc.lat ] }
+            });
+        }
+    }
+}
+
+// One solid pin image per color used by radioColor(). Registered on every
+// style.load because selectMap() uses { diff: false }, which discards images.
+function makePinImage(color) {
+    const w = 27, h = 41, pad = 3, scale = 2;
+    const canvas = document.createElement("canvas");
+    canvas.width = (w + 2 * pad) * scale;
+    canvas.height = (h + 2 * pad) * scale;
+    const ctx = canvas.getContext("2d");
+    ctx.scale(scale, scale);
+    ctx.translate(pad, pad);
+    const pin = new Path2D("M13.5 0C6.04 0 0 6.04 0 13.5C0 23.63 13.5 41 13.5 41C13.5 41 27 23.63 27 13.5C27 6.04 20.96 0 13.5 0Z");
+    ctx.shadowColor = "rgba(0, 0, 0, 0.4)";
+    ctx.shadowBlur = 2 * scale;
+    ctx.shadowOffsetX = 1 * scale;
+    ctx.shadowOffsetY = 1 * scale;
+    ctx.fillStyle = color;
+    ctx.fill(pin);
+    ctx.shadowColor = "transparent";
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.35)";
+    ctx.lineWidth = 1;
+    ctx.stroke(pin);
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+    ctx.arc(13.5, 13.5, 5.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    return ctx.getImageData(0, 0, canvas.width, canvas.height);
+}
+
+function addPinImages() {
+    const done = {};
+    for (const c in radioColors) {
+        const color = radioColors[c];
+        if (!done[color]) {
+            done[color] = true;
+            if (!map.hasImage(`pin-${color}`)) {
+                map.addImage(`pin-${color}`, makePinImage(color), { pixelRatio: 2 });
             }
         }
     }
 }
 
-function updateMarkers() {
-    for (cname in markers) {
-        const m = markers[cname];
-        if (filterKeyChannel !== "all" && m.getPopup()._channel == filterKeyChannel) {
-            if (!m._map) {
-                m.addTo(map);
-            }
-        }
-        else if (filterKeyChannel === "all" && (!filterKeyColor || filterKeyColor == m._color)) {
-            if (!m._map) {
-                m.addTo(map);
-            }
-        }
-        else {
-            m.remove();
-        }
+function updateNodeFilter() {
+    if (!map || !map.getLayer("nodes-rot")) {
+        return;
     }
+    let extra = null;
+    if (filterKeyChannel !== "all") {
+        extra = ["==", ["get", "channel"], `${filterKeyChannel}`];
+    }
+    else if (filterKeyColor) {
+        extra = ["==", ["get", "color"], filterKeyColor];
+    }
+    map.setFilter("nodes-rot", extra ? ["all", ["==", ["get", "aligned"], 1], extra] : ["==", ["get", "aligned"], 1]);
+    map.setFilter("nodes-flat", extra ? ["all", ["==", ["get", "aligned"], 0], extra] : ["==", ["get", "aligned"], 0]);
+}
+
+function attachNodeHandlers() {
+    [ "nodes-rot", "nodes-flat" ].forEach(layer => {
+        map.on("click", layer, e => {
+            if (getMode() === "measure") {
+                return;
+            }
+            lastMarkerClickEvent = e.originalEvent;
+            showNodePopup(e.features[0].properties.name, e.features[0].geometry.coordinates);
+        });
+    });
 }
 
 function updateSources() {
@@ -480,6 +578,11 @@ function updateSources() {
     map.getSource("xlink").setData(xlink);
     map.getSource("supertun").setData(supertun);
     map.getSource("longdtd").setData(longdtd);
+}
+
+function updateNodeSource() {
+    buildNodeFeatures();
+    map.getSource("nodes").setData(nodeFC);
 }
 
 function messageLocation() {
@@ -512,6 +615,10 @@ function loadMap() {
         attributionControl: embed ? false : { compact: true },
         renderWorldCopies: false
     });
+    map.on("style.load", () => {
+        addPinImages();
+        updateNodeFilter();
+    });
     if (!embed) {
         map.addControl(new maplibregl.NavigationControl({
             visualizePitch: true
@@ -523,8 +630,6 @@ function loadMap() {
         map.addControl(terrain, "bottom-right");
         map.once("style.load", () => terrain._toggleTerrain()); // Terrain off by default to make maps faster
     }
-    createMarkers();
-    updateMarkers();
     document.querySelector("#ctrl select").innerHTML = Object.keys(mapStyles).map(style => `<option>${style}</option>`);
     messageLocation();
 }
@@ -574,7 +679,7 @@ function filterKey(color) {
     }
     updateLinks();
     updateKey();
-    updateMarkers();
+    updateNodeFilter();
     updateSources();
 }
 
@@ -584,7 +689,7 @@ function filterChannel(chan)
     filterKeyChannel = chan;
     updateLinks();
     updateKey();
-    updateMarkers();
+    updateNodeFilter();
     updateSources();
 }
 
@@ -860,27 +965,6 @@ ${rf.status === 'on' ?
     return lines;
 }
 
-function makePopup(d)
-{
-    const cname = canonicalHostname(d.node);
-    const pop = new maplibregl.Popup({
-        className: "description",
-        closeButton: false,
-        maxWidth: "500px",
-        focusAfterOpen: false,
-        anchor: "left",
-        offset: [ 8, -4 ]
-    });
-    if (embed) {
-        pop.setHTML([`<div class="name">${cname}</div>`]);
-    }
-    else {
-        pop._channel = d.meshrf.channel;
-        pop.on("open", _ => pop.setHTML(makePopupHTML(cname)));
-    }
-    return pop;
-}
-
 function createMeasurementTool() {
     map.on("click", e => {
         if (getMode() !== "measure") {
@@ -1052,7 +1136,7 @@ function createLinkTool() {
             [e.point.x - size / 2, e.point.y - size / 2],
             [e.point.x + size / 2, e.point.y + size / 2]
         ], {
-            layers: [ "rfh", "rf9", "rf2", "rf3", "rf5", "tun", "xlink", "supertun", "longdtd" ]
+            layers: [ "rfh", "rf9", "rf2", "rf3", "rf5", "tun", "xlink", "supertun", "longdtd", "nodes-rot", "nodes-flat" ]
         });
         if (features.length) {
             map.getCanvas().style.cursor = "pointer";
@@ -1121,7 +1205,9 @@ function start() {
     countRadios();
     updateKey();
     updateChannels();
+    buildNodeFeatures();
     loadMap();
+    attachNodeHandlers();
     createMeasurementTool();
     createLinkTool();
     createFindTool();
@@ -1141,8 +1227,7 @@ function start() {
             countRadios();
             updateKey();
             updateChannels();
-            createMarkers();
-            updateMarkers();
+            updateNodeSource();
             updateSources();
         });
     }
