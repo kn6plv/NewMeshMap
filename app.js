@@ -623,6 +623,9 @@ function loadMap() {
         map.addControl(new maplibregl.NavigationControl({
             visualizePitch: true
         }), "bottom-right");
+        if (location.protocol === "https:") {
+            map.addControl(new maplibregl.GeolocateControl({ showUserLocation: false, positionOptions: { enableHighAccuracy: true } }), "bottom-right");
+        }
         terrain = new maplibregl.TerrainControl({
             source: 'maptiler',
             exaggeration: 1.5
