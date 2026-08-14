@@ -5,6 +5,14 @@ function idle() {
         next: 0,
         steps: config.tour || [ "standard", `${config.zoom}/${config.lat}/${config.lon}`, `wait ${config.idle}` ]
     };
+    function nodeLocation(chostname) {
+        const n = nodes[chostname];
+        const loc = getVirtualLatLon(n && n.data);
+        if (loc.lat && loc.lon) {
+            return [ loc.lon, loc.lat ];
+        }
+        return null;
+    }
     function tourStep() {
         idle = null;
         for (;;) {
@@ -37,37 +45,35 @@ function idle() {
             }
             else if (step.indexOf("open") === 0) {
                 const chostname = step.substring(4).trim().toUpperCase();
-                const marker = markers[chostname];
-                if (marker && marker._map) {
+                const lnglat = nodeLocation(chostname);
+                if (lnglat) {
                     openPopup();
-                    marker.togglePopup();
+                    showNodePopup(chostname, lnglat);
                 }
             }
             else if (step === "random") {
-                const nodes = Object.values(markers);
-                const marker = nodes[Math.min(nodes.length - 1, Math.floor(Math.random() * nodes.length))];
+                const names = Object.keys(nodes).filter(cname => nodeLocation(cname));
+                const chostname = names[Math.min(names.length - 1, Math.floor(Math.random() * names.length))];
+                const lnglat = nodeLocation(chostname);
                 openPopup();
-                map.flyTo({ center: marker.getLngLat(), speed: 1, zoom: 15, pitch: 60, bearing: 0 });
+                map.flyTo({ center: lnglat, speed: 1, zoom: 15, pitch: 60, bearing: 0 });
                 map.once("moveend", () => {
                     if (!idle) {
-                        if (marker._map) {
-                            marker.togglePopup();
-                        }
+                        showNodePopup(chostname, lnglat);
                         tourStep();
                     }
                 });
                 break;
 
             }
-            else if (markers[step.toUpperCase()]) {
-                const marker = markers[step.toUpperCase()];
+            else if (nodeLocation(step.toUpperCase())) {
+                const chostname = step.toUpperCase();
+                const lnglat = nodeLocation(chostname);
                 openPopup();
-                map.flyTo({ center: marker.getLngLat(), speed: 1, zoom: 15, pitch: 60, bearing: 0 });
+                map.flyTo({ center: lnglat, speed: 1, zoom: 15, pitch: 60, bearing: 0 });
                 map.once("moveend", () => {
                     if (!idle) {
-                        if (marker._map) {
-                            marker.togglePopup();
-                        }
+                        showNodePopup(chostname, lnglat);
                         tourStep();
                     }
                 });
