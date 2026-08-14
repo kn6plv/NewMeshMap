@@ -114,7 +114,11 @@ function idle() {
             tour.idling = false;
             openPopup();
             selectMap("standard", false);
+            map.getContainer().style.pointerEvents = "none";
             map.flyTo({ center: [ config.lon, config.lat ], speed: 1, zoom: config.zoom, pitch: 0, bearing: 0 });
+            map.once("moveend", () => {
+                map.getContainer().style.pointerEvents = "";
+            });
         }
     }
     [ "mousemove", "mousedown", "touchstart", "click", "keypress", "scroll" ].forEach(function(name) {
