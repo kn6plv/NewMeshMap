@@ -7,7 +7,7 @@ function idle() {
     };
     function nodeLocation(chostname) {
         const n = nodes[chostname];
-        const loc = getVirtualLatLon(n && n.data);
+        const loc = getRealLatLon(n && n.data);
         if (loc.lat && loc.lon) {
             return [ loc.lon, loc.lat ];
         }
