@@ -56,7 +56,7 @@ function idle() {
                 const chostname = names[Math.min(names.length - 1, Math.floor(Math.random() * names.length))];
                 const lnglat = nodeLocation(chostname);
                 openPopup();
-                map.flyTo({ center: lnglat, speed: 1, zoom: 15, pitch: 60, bearing: 0 });
+                map.flyTo({ center: lnglat, elevation: map.queryTerrainElevation(lnglat) || 0, speed: 1, zoom: 15, pitch: 60, bearing: 0 });
                 map.once("moveend", () => {
                     if (!idle) {
                         showNodePopup(chostname, lnglat);
@@ -70,7 +70,7 @@ function idle() {
                 const chostname = step.toUpperCase();
                 const lnglat = nodeLocation(chostname);
                 openPopup();
-                map.flyTo({ center: lnglat, speed: 1, zoom: 15, pitch: 60, bearing: 0 });
+                map.flyTo({ center: lnglat, elevation: map.queryTerrainElevation(lnglat) || 0, speed: 1, zoom: 15, pitch: 60, bearing: 0 });
                 map.once("moveend", () => {
                     if (!idle) {
                         showNodePopup(chostname, lnglat);
