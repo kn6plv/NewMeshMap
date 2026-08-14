@@ -612,7 +612,7 @@ function loadMap() {
         //maxTileCacheSize: 1024 * 1024,
         //maxTileCacheZoomLevels: 8,
         refreshExpiredTiles: false,
-        attributionControl: embed ? false : { compact: true },
+        attributionControl: false,
         renderWorldCopies: true
     });
     map.on("style.load", () => {
@@ -631,6 +631,7 @@ function loadMap() {
             exaggeration: 1.5
         });
         map.addControl(terrain, "bottom-right");
+        map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-left");
         map.once("style.load", () => terrain._toggleTerrain()); // Terrain off by default to make maps faster
     }
     document.querySelector("#ctrl select").innerHTML = Object.keys(mapStyles).map(style => `<option>${style}</option>`);
