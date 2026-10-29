@@ -4,7 +4,7 @@ A new Mesh Map providing a web view on your local AREDN mesh network.
 
 ### Installation
 
-To install simply copy all the files into your chosen place on your favorite web server. Then rename ```cofig.js.example``` to ```config.js``` after changing the various fields for your specific requirements.
+To install simply copy all the files into your chosen place on your favorite web server. Then rename ```config.js.example``` to ```config.js``` after changing the various fields for your specific requirements.
 
 ### Mesh Map Data
 
