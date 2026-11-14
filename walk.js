@@ -9,7 +9,7 @@ const found = {};
 async function readNode(name) {
     return new Promise(async resolve => {
         try {
-            const res = await fetch(`http://${name}.local.mesh/cgi-bin/sysinfo.json?link_info=1&lqm=1`);
+            const res = await fetch(`http://${name}.local.mesh/a/sysinfo?link_info=1&lqm=1`);
             resolve(await res.json());
             return;
         }
